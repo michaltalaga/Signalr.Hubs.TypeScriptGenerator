@@ -12,6 +12,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 		public List<EnumInfo> Enums { get; }
 
         public DateTime LastGenerated => DateTime.UtcNow;
+	    public bool IncludeReferencePaths { get; set; }
 
 	    public TypesModel(List<TypeInfo> hubs, List<ServiceInfo> serviceContracts, List<ClientInfo> clients, List<DataContractInfo> dataContracts, List<EnumInfo> enums)
 	    {

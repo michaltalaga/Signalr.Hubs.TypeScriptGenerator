@@ -10,9 +10,10 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 {
     public class HubTypeScriptGenerator
     {
-        public string Generate()
+        public string Generate(bool includeReferencePaths = false)
         {
             var model = GenerateTypeScriptModel();
+            model.IncludeReferencePaths = includeReferencePaths;
             var template = ReadEmbeddedFile("template.cshtml");
             var outputText = Engine.Razor.RunCompile(template, "templateKey", null, model);
             return outputText;

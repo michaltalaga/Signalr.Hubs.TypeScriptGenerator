@@ -9,7 +9,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage
         public void Generate()
         {
             var hubTypeScriptGenerator = new HubTypeScriptGenerator();
-            var typeScript = hubTypeScriptGenerator.Generate();
+            var typeScript = hubTypeScriptGenerator.Generate(true);
             System.Console.WriteLine(typeScript);
         }
     }

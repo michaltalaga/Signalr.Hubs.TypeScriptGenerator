@@ -6,9 +6,9 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 	{
 		public string ModuleName { get; }
 		public string InterfaceName { get; }
-		public List<TypeInfo> Properties { get; }
+		public List<MemberTypeInfo> Properties { get; }
 
-	    public EnumInfo(string moduleName, string interfaceName, List<TypeInfo> properties)
+	    public EnumInfo(string moduleName, string interfaceName, List<MemberTypeInfo> properties)
 	    {
 	        ModuleName = moduleName;
 	        InterfaceName = interfaceName;

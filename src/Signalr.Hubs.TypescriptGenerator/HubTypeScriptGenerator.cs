@@ -8,44 +8,50 @@ using RazorEngine.Templating;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 {
-    public class HubTypeScriptGenerator
-    {
-        public string Generate(bool includeReferencePaths = false)
-        {
-            var model = GenerateTypeScriptModel();
-            model.IncludeReferencePaths = includeReferencePaths;
-            var template = ReadEmbeddedFile("template.cshtml");
-            var outputText = Engine.Razor.RunCompile(template, "templateKey", null, model);
-            return outputText;
-        }
+	public class HubTypeScriptGenerator
+	{
+		[Obsolete("This method is superseded with Generate(TypeScriptGeneratorOptions) method.")]
+		public string Generate(bool includeReferencePaths = false)
+		{
+			return Generate(TypeScriptGeneratorOptions.Default.WithReferencePaths(includeReferencePaths));
+		}
 
-        private static TypesModel GenerateTypeScriptModel()
-        {
-            var signalrHelper = new HubHelper();
-            return new TypesModel(
-                hubs: signalrHelper.GetHubs(),
-                serviceContracts: signalrHelper.GetServiceContracts(),
-                clients: signalrHelper.GetClients(),
-                dataContracts: signalrHelper.GetDataContracts(),
-                enums: signalrHelper.GetEnums());
-        }
+		public string Generate(TypeScriptGeneratorOptions options)
+		{
+			var model = GenerateTypeScriptModel(options);
+			model.IncludeReferencePaths = options.IncludeReferencePaths;
+			var template = ReadEmbeddedFile("template.cshtml");
+			var outputText = Engine.Razor.RunCompile(template, "templateKey", null, model);
+			return outputText;
+		}
 
-        private static string ReadEmbeddedFile(string file)
-        {
-            string resourcePath = $"{typeof(HubTypeScriptGenerator).Namespace}.{file}";
+		private static TypesModel GenerateTypeScriptModel(TypeScriptGeneratorOptions options)
+		{
+			var signalrHelper = new HubHelper(options);
+			return new TypesModel(
+				signalrHelper.GetHubs(),
+				signalrHelper.GetServiceContracts(),
+				signalrHelper.GetClients(),
+				signalrHelper.GetDataContracts(),
+				signalrHelper.GetEnums());
+		}
 
-            using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath))
-            {
-                if (stream == null) throw new InvalidOperationException($"Unable to find '{resourcePath}' as an embedded resource");
+		private static string ReadEmbeddedFile(string file)
+		{
+			string resourcePath = $"{typeof(HubTypeScriptGenerator).Namespace}.{file}";
 
-                string textContent;
-                using (var reader = new StreamReader(stream))
-                {
-                    textContent = reader.ReadToEnd();
-                }
+			using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourcePath))
+			{
+				if (stream == null) throw new InvalidOperationException($"Unable to find '{resourcePath}' as an embedded resource");
 
-                return textContent;
-            }
-        }
-    }
+				string textContent;
+				using (var reader = new StreamReader(stream))
+				{
+					textContent = reader.ReadToEnd();
+				}
+
+				return textContent;
+			}
+		}
+	}
 }

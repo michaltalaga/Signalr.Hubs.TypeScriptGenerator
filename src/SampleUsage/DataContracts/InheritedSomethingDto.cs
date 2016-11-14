@@ -6,6 +6,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContract
     public class InheritedSomethingDto : SomethingDto
     {
         [DataMember]
-        public int InheritedSomethingDtoProperty1 { get; set; }
+        public int OptionalInteger { get; set; }
     }
 }

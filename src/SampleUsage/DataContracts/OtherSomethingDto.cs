@@ -1,5 +1,6 @@
 using System;
 using System.Runtime.Serialization;
+using System.ComponentModel.DataAnnotations;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
 {
@@ -16,6 +17,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContract
 		public InnerSomethingDto OptionalInnerSomething { get; set; }
 
 		[DataMember (IsRequired = true)]
+		[Required]
 		public InnerSomethingDto RequiredInnerSomething { get; set; }
 	}
 }

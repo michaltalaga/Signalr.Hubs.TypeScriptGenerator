@@ -147,7 +147,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 					case "string":
 						return Nullable(TypeInfo.String, forceNotNullable);
 
-						// TODO: Guid
+					case "guid":
+						return TypeInfo.String;
 				}
 			}
 

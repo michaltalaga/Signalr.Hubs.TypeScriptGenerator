@@ -138,6 +138,7 @@ Example C# code:
         [Required]
         public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; }
+        public int?   ClientCode   { get; set; }
     }
 
 When generated using *NotNullableTypeDiscovery.None*:
@@ -145,7 +146,8 @@ When generated using *NotNullableTypeDiscovery.None*:
     interface SampleDto
     {
         addressLine1 : string;
-        addressLine1 : string;
+        addressLine2 : string;
+        clientCode : number;
     }
      
 When generated using *NotNullableTypeDiscovery.UseRequiredAttribute*:
@@ -153,7 +155,8 @@ When generated using *NotNullableTypeDiscovery.UseRequiredAttribute*:
     interface SampleDto
     {
         addressLine1 : string;
-        addressLine1 : string | null;
+        addressLine2 : string | null;
+        clientCode : number | null;
     }
 
 ### Signalr.Hubs.TypeScriptGenerator.Console

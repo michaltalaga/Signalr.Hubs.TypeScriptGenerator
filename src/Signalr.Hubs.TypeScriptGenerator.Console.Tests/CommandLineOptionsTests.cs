@@ -52,16 +52,16 @@ namespace Signalr.Hubs.TypeScriptGenerator.Console.Tests
             // Arrange
             var sut = GetSUT();
             var suppliedOutput = "supplied output";
-            var suppliedOxports = "supplied exports";
+            var suppliedExports = "supplied exports";
             sut.Output = suppliedOutput;
-            sut.Exports = suppliedOxports;
+            sut.Exports = suppliedExports;
 
             // Act
             sut.AdjustOutputPaths();
 
             // Assert
             Assert.That(sut.Output, Is.EqualTo(suppliedOutput));
-            Assert.That(sut.Exports, Is.EqualTo(suppliedOxports));
+            Assert.That(sut.Exports, Is.EqualTo(suppliedExports));
         }
 
         [Test]

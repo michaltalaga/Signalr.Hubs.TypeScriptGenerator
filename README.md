@@ -169,7 +169,8 @@ The long name must be prepended by double hyphen ('*--*'). Below is the list of 
 | Option                      | Description |
 |-----------------------------|-----------------------------------------------------------------|
 | -a, --assembly              | **Required**. The path to the assembly (.dll/.exe) |
-| -o, --outfile               | The path to the file to generate. If this is empty, the output is written to stdout. |
+| -o, --output                | The path to the generated file containing declarations code. If this is empty, the output file name is written to stdout. If it ends with directory separator, the path is treated as directory and the output file name is generated from supplied assembly file name and written to the folder specified by output path. |
+| -e, --exports               | The path to the generated file containing exported code. If this is empty, name is generated from the output file. Ignored if 'output' value not specified.")]
 | -i, --includeReferencePaths | Default: *False*. If true, the jquery and signalr typings reference paths will be included. |
 | -p, --optionalMembers       | Default: *None*. Specifies method to discover members treated as optional: *None* - don't generate optional members; *DataMemberAttribute* - use [DataMember(IsRequired)] attribute. |
 | -s, --strictTypes           | Default: *False*. If true, union definitions with *null* are generated for nullable types. |

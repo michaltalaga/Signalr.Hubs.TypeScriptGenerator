@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{5522BF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleUsage", "src\SampleUsage\SampleUsage.csproj", "{668072BF-5142-4796-BA67-8CB676C7196C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EE007350-4EB9-4C18-80F7-DE03C392EF82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Signalr.Hubs.TypeScriptGenerator.Console.Tests", "src\Signalr.Hubs.TypeScriptGenerator.Console.Tests\Signalr.Hubs.TypeScriptGenerator.Console.Tests.csproj", "{867C1481-3957-407F-AA88-9F6EEEF782B5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +40,10 @@ Global
 		{668072BF-5142-4796-BA67-8CB676C7196C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{668072BF-5142-4796-BA67-8CB676C7196C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{668072BF-5142-4796-BA67-8CB676C7196C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{867C1481-3957-407F-AA88-9F6EEEF782B5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{867C1481-3957-407F-AA88-9F6EEEF782B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{867C1481-3957-407F-AA88-9F6EEEF782B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{867C1481-3957-407F-AA88-9F6EEEF782B5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -44,5 +52,6 @@ Global
 		{C90F8C7B-213B-4CD0-A9F0-3A39634CECDE} = {AE98D3B3-6832-4544-A021-3C32156F971B}
 		{B68600AA-F2AE-4EBF-9AF5-DEF252E71142} = {AE98D3B3-6832-4544-A021-3C32156F971B}
 		{668072BF-5142-4796-BA67-8CB676C7196C} = {5522BF7C-CC56-45CA-8C07-A735916CC2BE}
+		{867C1481-3957-407F-AA88-9F6EEEF782B5} = {EE007350-4EB9-4C18-80F7-DE03C392EF82}
 	EndGlobalSection
 EndGlobal

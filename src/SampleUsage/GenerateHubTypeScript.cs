@@ -6,16 +6,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage
 	public class GenerateHubTypeScript
 	{
 		[Test]
-		public void Generate()
-		{
-			var hubTypeScriptGenerator = new HubTypeScriptGenerator();
-#pragma warning disable 618
-			var typeScript = hubTypeScriptGenerator.Generate(true);
-#pragma warning restore 618
-			System.Console.WriteLine(typeScript);
-		}
-
-		[Test]
 		public void GenerateWithStrictTypesAndOptionalMembers()
 		{
 			var hubTypeScriptGenerator = new HubTypeScriptGenerator();
@@ -24,7 +14,10 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage
 				.WithStrictTypes(NotNullableTypeDiscovery.UseRequiredAttribute)
 				.WithOptionalMembers(OptionalMemberGenerationMode.UseDataMemberAttribute);
 			var typeScript = hubTypeScriptGenerator.Generate(options);
-			System.Console.WriteLine(typeScript);
+
+			System.Console.WriteLine(typeScript.Item1);
+			System.Console.WriteLine(typeScript.Item2);
+			Assert.Pass();
 		}
 	}
 }

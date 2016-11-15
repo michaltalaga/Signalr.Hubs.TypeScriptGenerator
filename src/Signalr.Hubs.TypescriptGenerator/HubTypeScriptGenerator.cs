@@ -10,19 +10,22 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 {
 	public class HubTypeScriptGenerator
 	{
-		[Obsolete("This method is superseded with Generate(TypeScriptGeneratorOptions) method.")]
-		public string Generate(bool includeReferencePaths = false)
-		{
-			return Generate(TypeScriptGeneratorOptions.Default.WithReferencePaths(includeReferencePaths));
-		}
-
-		public string Generate(TypeScriptGeneratorOptions options)
+		/// <summary>
+		/// Generates typescript declarations and exports code.
+		/// </summary>
+		/// <param name="options">The parsed command line options.</param>
+		/// <returns>The <see cref="Tuple{string, string}"/> with <see cref="Tuple{string, string}.Item1"/> set to 
+		/// generated declarations, and the <see cref="Tuple{string, string}.Item2"/> set to generated exports.
+		/// </returns>
+		public Tuple<string, string> Generate(TypeScriptGeneratorOptions options)
 		{
 			var model = GenerateTypeScriptModel(options);
 			model.IncludeReferencePaths = options.IncludeReferencePaths;
-			var template = ReadEmbeddedFile("template.cshtml");
-			var outputText = Engine.Razor.RunCompile(template, "templateKey", null, model);
-			return outputText;
+			var declarationsTemplate = ReadEmbeddedFile("declarations.cshtml");
+			var exportsTemplate = ReadEmbeddedFile("exports.cshtml");
+			var declaration = Engine.Razor.RunCompile(declarationsTemplate, "declarationKey", null, model);
+			var exports = Engine.Razor.RunCompile(exportsTemplate, "exportsKey", null, model);
+			return Tuple.Create(declaration, exports);
 		}
 
 		private static TypesModel GenerateTypeScriptModel(TypeScriptGeneratorOptions options)

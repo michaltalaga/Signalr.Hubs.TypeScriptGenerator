@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Data;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using CommandLine;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
@@ -19,6 +22,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 				var options = new CommandLineOptions();
 				if (Parser.Default.ParseArguments(args, options))
 				{
+					options.AdjustOutputPaths();
 					Run(options);
 					return 0;
 				}
@@ -50,16 +54,9 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 
 			var generatorOptions = GetTypeScriptGeneratorOptions(commandLineOptions);
 			var hubTypeScriptGenerator = new HubTypeScriptGenerator();
-			var outputText = hubTypeScriptGenerator.Generate(generatorOptions);
-
-			if (string.IsNullOrWhiteSpace(commandLineOptions.OutFile))
-			{
-				System.Console.WriteLine(outputText);
-			}
-			else
-			{
-				File.WriteAllText(commandLineOptions.OutFile, outputText);
-			}
+			var output = hubTypeScriptGenerator.Generate(generatorOptions);
+			WriteOutput(output.Item1, commandLineOptions.Output);
+			WriteOutput(output.Item2, commandLineOptions.Exports);
 		}
 
 		private static TypeScriptGeneratorOptions GetTypeScriptGeneratorOptions(CommandLineOptions commandLineOptions)
@@ -76,6 +73,18 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 		{
 			var assemblyLoader = new AssemblyLoader();
 			assemblyLoader.LoadAssemblyIntoAppDomain(assemblyPath);
+		}
+
+		private static void WriteOutput(string content, string filePath)
+		{
+			if (string.IsNullOrWhiteSpace(filePath))
+			{
+				System.Console.WriteLine(content);
+			}
+			else
+			{
+				File.WriteAllText(filePath, content);
+			}
 		}
 	}
 }

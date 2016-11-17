@@ -20,7 +20,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 		public Tuple<string, string> Generate(TypeScriptGeneratorOptions options)
 		{
 			var model = GenerateTypeScriptModel(options);
-			model.IncludeReferencePaths = options.IncludeReferencePaths;
 			var declarationsTemplate = ReadEmbeddedFile("declarations.cshtml");
 			var exportsTemplate = ReadEmbeddedFile("exports.cshtml");
 			var declaration = Engine.Razor.RunCompile(declarationsTemplate, "declarationKey", null, model);
@@ -32,6 +31,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 		{
 			var signalrHelper = new HubHelper(options);
 			return new TypesModel(
+				options.ReferencePaths ?? new string[0],
 				signalrHelper.GetHubs(),
 				signalrHelper.GetServiceContracts(),
 				signalrHelper.GetClients(),

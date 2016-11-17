@@ -16,8 +16,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 		[Option('e', "exports", HelpText = "The path to the generated file containing exported code. If this is empty, name is generated from the output file.")]
 		public string Exports { get; set; }
 
-		[Option('i', "includeReferencePaths", HelpText = "If true, the jquery and signalr typings reference paths will be included.", DefaultValue = false, Required = false)]
-		public bool IncludeReferencePaths { get; set; }
+		[Option('r', "references", HelpText = "Optional. List of file paths, delimited by semicolon to be added as the <reference/> instruction.", Required = false)]
+		public string References { get; set; }
 
 		[Option('p', "optionalMembers", HelpText = "Specifies method to discover members treated as optional: None - don't generate optional members; DataMemberAttribute - use [DataMember(IsRequired)] attribute.", Required = false, DefaultValue = "None")]
 		public string OptionalMembers { get; set; }
@@ -27,6 +27,9 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 
 		[Option('n', "notNullableTypes", HelpText = "Specifies method to discover members treated as not-nullable: RequiredAttribute: - use [Required] attribute.", Required = false)]
 		public string NotNullableTypes { get; set; }
+
+		[Option("includeSourceDetails", HelpText = "Adds details on source assembly (name, version) to the header comment of the generated files.", DefaultValue = false, Required = false)]
+		public bool IncludeSourceDetails { get; set; }
 
 		[HelpOption]
 		public string GetUsage()

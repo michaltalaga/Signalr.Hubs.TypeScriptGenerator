@@ -10,7 +10,9 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage
 		{
 			var hubTypeScriptGenerator = new HubTypeScriptGenerator();
 			var options = TypeScriptGeneratorOptions.Default
-				.WithReferencePaths()
+				.WithReferencePaths(
+					@"../signalr/index.d.ts",
+					@"../jquery/index.d.ts")
 				.WithStrictTypes(NotNullableTypeDiscovery.UseRequiredAttribute)
 				.WithOptionalMembers(OptionalMemberGenerationMode.UseDataMemberAttribute);
 			var typeScript = hubTypeScriptGenerator.Generate(options);

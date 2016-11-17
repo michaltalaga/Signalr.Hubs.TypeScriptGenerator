@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Data;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using CommandLine;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
@@ -53,19 +50,23 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 			LoadAssemblies(commandLineOptions.AssemblyPath);
 
 			var generatorOptions = GetTypeScriptGeneratorOptions(commandLineOptions);
+
 			var hubTypeScriptGenerator = new HubTypeScriptGenerator();
 			var output = hubTypeScriptGenerator.Generate(generatorOptions);
+
 			WriteOutput(output.Item1, commandLineOptions.Output);
 			WriteOutput(output.Item2, commandLineOptions.Exports);
 		}
 
-		private static TypeScriptGeneratorOptions GetTypeScriptGeneratorOptions(CommandLineOptions commandLineOptions)
+		private static TypeScriptGeneratorOptions GetTypeScriptGeneratorOptions(
+			CommandLineOptions commandLineOptions)
 		{
 			var options = TypeScriptGeneratorOptions.Default
-				.WithReferencePaths(commandLineOptions.IncludeReferencePaths)
 				.WithOptionalMembers(commandLineOptions.GetOptionalMemberGenerationMode());
 			if (commandLineOptions.StrictTypes)
 				options = options.WithStrictTypes(commandLineOptions.GetNotNullableTypeDiscovery());
+			if (!string.IsNullOrEmpty(commandLineOptions.References))
+				options = options.WithReferencePaths(commandLineOptions.References.Split(';'));
 			return options;
 		}
 

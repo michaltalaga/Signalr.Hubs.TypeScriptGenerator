@@ -15,36 +15,47 @@ Our usage at Genius Sports is to generate the Hub proxies at build time using ou
 
 ### Signalr.Hubs.TypeScriptGenerator
 The utility library is simple to use, load any assemblies required and then create a HubTypeScriptGenerator and call 
-the *Generate* method. There  are two overloads of the latter:
-
-- *Generate(TypeScriptGeneratorOptions)* - takes on input generator options (described in details below).
-- *Generate(bool)* - this overload is deprecated and retained for backward compatibility only. It is supeseded by 
-                   the version below. The single boolean argument is equivalent to using 
-                   TypeScriptGeneratorOptions.IncludeReferencePaths option (described later below).
-                   The *Generate()* or *Generate(false)* is equivalent to *Generate(TypeScriptGeneratorOptions.Default)*.
-
-The *Generate* method returns the TypeScript as a string. Specifiying a pecific assembly to scan is not suported, since 
-the SignalR DefaultHubManager is used which looks up for all loaded assemblies.
+the *Generate* method:
 
     var generator = new HubTypeScriptGenerator();
     var typeScript = generator.Generate(TypeScriptGeneratorOptions.Default);
 
+The *Generate* method takes on input generator options (described in details below) and returns Tuple<string, string> 
+with both items containing generated TypeScript. The first item contains generated declarations, while the second 
+contains exported code. 
+
+**NOTE:** Specifiying a specific assembly to scan is not suported, since the SignalR DefaultHubManager 
+is used which looks up for Hub implementations in all loaded assemblies.
+
 #### TypeScriptGeneratorOptions
 
-Several options are provided to add to enable more control over generated code. The *TypeScriptGeneratorOptions* class
-provides the *Default* proeprty which returns the instance initialized with default values. It also provides set of
-customization methods designed for *fluent* coding style. The below example should be quite self-describing: 
+Several options are provided via *TypeScriptGeneratorOptions* class to enable more control over generated code:
+ - ReferencePaths
+ - OptionalMemberGenerationMode
+ - GenerateStrictTypes
+ - NotNullableTypeDiscovery
+
+The static *Default* property returns the instance having all options initialized with default values. It also 
+provides set of customization methods designed for *fluent* coding style. The below example should be quite 
+self-describing: 
 
     var options = TypeScriptGeneratorOptions.Default
-        .WithReferencePaths()
-        .WithStrictTypes(NotNullableTypeDiscovery.UseRequiredAttribute)
-        .WithOptionalMembers(OptionalMemberGenerationMode.UseDataMemberAttribute);
+        .WithReferencePaths(
+            "../signalr/index.d.ts", 
+            "../jquery/index.d.ts")
+        .WithStrictTypes(
+            NotNullableTypeDiscovery.UseRequiredAttribute)
+        .WithOptionalMembers(
+            OptionalMemberGenerationMode.UseDataMemberAttribute);
 
-##### IncludeReferencePaths
-If **true** specified, adds the following lines to generated code: 
+Below, each option is described in details.
+
+##### ReferencePaths
+Optional collection of file paths, that are inserted into generated code as **\<reference \/\>** instructions. 
+The above usage example will add the following references:
 
     /// <reference path="../signalr/index.d.ts" />
-    /// <reference path="../ jquery / index.d.ts" />
+    /// <reference path="../jquery/index.d.ts" />
 
 ##### OptionalMemberGenerationMode
 Indicates if and when contract interface members shall be generated as optional (having the member name decorated 
@@ -171,20 +182,34 @@ The long name must be prepended by double hyphen ('*--*'). Below is the list of 
 | -a, --assembly              | **Required**. The path to the assembly (.dll/.exe) |
 | -o, --output                | The path to the generated file containing declarations code. If this is empty, the output file name is written to stdout. If it ends with directory separator, the path is treated as directory and the output file name is generated from supplied assembly file name and written to the folder specified by output path. |
 | -e, --exports               | The path to the generated file containing exported code. If this is empty, name is generated from the output file. Ignored if 'output' value not specified.")]
-| -i, --includeReferencePaths | Default: *False*. If true, the jquery and signalr typings reference paths will be included. |
+| -r, --references            | Optional. List of reference file paths, delimited by semicolon. The **"/// \<reference\/\>** instruction is added for each file. |
 | -p, --optionalMembers       | Default: *None*. Specifies method to discover members treated as optional: *None* - don't generate optional members; *DataMemberAttribute* - use [DataMember(IsRequired)] attribute. |
 | -s, --strictTypes           | Default: *False*. If true, union definitions with *null* are generated for nullable types. |
 | -n, --notNullableTypes      | Default: *None*. Specifies method to discover members treated as not-nullable: RequiredAttribute: - use [Required] attribute. |
 | --help                      | Display help screen.
 
-The following  will output the TypeScript to the specified file path using default TypeScript generation options.
-
-    .\Signalr.Hubs.TypeScriptGenerator.Console.exe -a "c:\etc\path-to-myassembly.dll" -o "C:\temp\.myfile.d.ts"
-
 If the output file is not specified the result is written to standard out.
 
-An optional paramater is -i or -includeReferencePaths, see above for details.
+#### Usage examples:
 
+For brevity, executable name used in examples is *generate.exe*.
+
+    generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\myapp.hubs.d.ts" -e "c:\temp\myapp.hubs.exports.ts"
+
+Generates declarations and exports content from the specified assembly into *myapp.hubs.d.ts* and 
+*myapp.hubs.exports.ts* files, respectively, in the "c:\temp\" directory. Default options will be used.
+
+    generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\"
+
+The output path ending with directory separator will cause output file generated from the input assembly name.
+Declarations and exports will be written to *hubs.d.ts* and *hubs.exports.ts*, in the *c:\\temp\\* directory.
+
+    generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\myapp_hubs.d.ts"
+
+The declarations output path specifies file name, but exports file is missing; in this case, exports file anem will be derived
+from the declarations file. Declarations and exports created in *myapp_hubs.d.ts* and *myapp_hubs.exports.ts* files,
+in the *c:\temp\* directory.
+ 
 **# ONLY COMBATIBLE WITH SIGNALR VERSIONS AT 2.2.1.0 OR EARLIER #**
 
 We have compiled this at verison 2.2.1.0 so in order for the HubManager to recognise your hubs we are using an assembly redirect. If Microsoft release a new version we will need to update this.
@@ -194,7 +219,7 @@ We have compiled this at verison 2.2.1.0 so in order for the HubManager to recog
         <bindingRedirect oldVersion="0.0.0.0-2.2.1.0" newVersion="2.2.1.0" />
       </dependentAssembly>
 
-### Data Contract Property Name
+### Data Contract Property Names
 Sometimes the serialized name of your data contract properties are changed from the actual C# property name. This is done through the DataMember property:
 
     [DataContract]
@@ -220,9 +245,38 @@ This library will respect the DataMember name and use this as the TypeScript pro
 
 ## Example Output
 
-    /// Autogenerated at 2016-11-14 13:56:00 by https://github.com/geniussportsgroup/Signalr.Hubs.TypeScriptGenerator
+The below output is generated from the assembly produced by the SampleUsage project (part of the solution) using the 
+following code:
+
+    var hubTypeScriptGenerator = new HubTypeScriptGenerator();
+    var options = TypeScriptGeneratorOptions.Default
+        .WithReferencePaths(
+            @"../signalr/index.d.ts",
+            @"../jquery/index.d.ts")
+        .WithStrictTypes(NotNullableTypeDiscovery.UseRequiredAttribute)
+        .WithOptionalMembers(OptionalMemberGenerationMode.UseDataMemberAttribute);
+    var typeScript = hubTypeScriptGenerator.Generate(options);
+
+
+
+### Generated Declarations
+
+    //------------------------------------------------------------------------------
+    // <auto-generated>
+    //
+    // This code was generated by a tool.
+    //
+    // Changes to this file may cause incorrect behavior and will be lost if
+    // the code is regenerated.
+    //
+    // 2016-11-17 19:34:00Z
+    // https://github.com/geniussportsgroup/Signalr.Hubs.TypeScriptGenerator
+    //
+    // </auto-generated>
+    //------------------------------------------------------------------------------
+
     /// <reference path="../signalr/index.d.ts" />
-    /// <reference path="../ jquery / index.d.ts" />
+    /// <reference path="../jquery/index.d.ts" />
 
     // Hubs
 
@@ -322,10 +376,25 @@ This library will respect the DataMember name and use this as the TypeScript pro
         }
     }
 
+### Generated Exports
+
+    //------------------------------------------------------------------------------
+    // <auto-generated>
+    //
+    // This code was generated by a tool.
+    //
+    // Changes to this file may cause incorrect behavior and will be lost if
+    // the code is regenerated.
+    //
+    // 2016-11-17 19:42:25Z
+    // https://github.com/geniussportsgroup/Signalr.Hubs.TypeScriptGenerator
+    //
+    // </auto-generated>
+    //------------------------------------------------------------------------------
 
     // Enums
 
-    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
+    export module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
     {
         export enum SomethingEnum
         {

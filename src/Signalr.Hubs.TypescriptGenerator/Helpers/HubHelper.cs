@@ -1,10 +1,10 @@
-﻿using GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Hubs;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 {

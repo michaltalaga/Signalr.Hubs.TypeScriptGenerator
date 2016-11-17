@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
+﻿namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 {
 	/// <summary>
 	/// Encapsulates options controlling valrious aspects of Type Script code generation.
@@ -12,9 +10,9 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 	public sealed class TypeScriptGeneratorOptions
 	{
 		/// <summary>
-		/// Instructs to add <i>signalr</i>, <i>jquery</i> references to generated type secipt.
+		/// Semicolon-delimited file paths added as <c>&lt;reference /&gt;</c> instructions to the declarations file.
 		/// </summary>
-		public bool IncludeReferencePaths { get; }
+		public string[] ReferencePaths { get; }
 
 		/// <summary>
 		/// Indicates if and how optional contract interface members shall be generated.
@@ -43,12 +41,12 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 		}
 
 		private TypeScriptGeneratorOptions(
-			bool includeReferencePaths, 
+			string[] referencePaths,
 			OptionalMemberGenerationMode optionalMemberGenerationMode, 
 			bool generateStrictTypes, 
 			NotNullableTypeDiscovery notNullableTypeDiscovery)
 		{
-			IncludeReferencePaths = includeReferencePaths;
+			ReferencePaths = referencePaths;
 			OptionalMemberGenerationMode = optionalMemberGenerationMode;
 			GenerateStrictTypes = generateStrictTypes;
 			NotNullableTypeDiscovery = notNullableTypeDiscovery;	
@@ -60,10 +58,10 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 		/// </summary>
 		public static readonly TypeScriptGeneratorOptions Default = new TypeScriptGeneratorOptions();
 
-		public TypeScriptGeneratorOptions WithReferencePaths(bool includeReferencePaths = true)
+		public TypeScriptGeneratorOptions WithReferencePaths(params string [] referencePaths)
 		{
 			return new TypeScriptGeneratorOptions(
-				includeReferencePaths,
+				referencePaths,
 				OptionalMemberGenerationMode,
 				GenerateStrictTypes,
 				NotNullableTypeDiscovery);
@@ -73,7 +71,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 			OptionalMemberGenerationMode requiredMemberDiscovery)
 		{
 			return new TypeScriptGeneratorOptions(
-				IncludeReferencePaths,
+				ReferencePaths,
 				requiredMemberDiscovery,
 				GenerateStrictTypes,
 				NotNullableTypeDiscovery);
@@ -83,7 +81,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 			NotNullableTypeDiscovery notNullableTypeDiscovery = NotNullableTypeDiscovery.None)
 		{
 			return new TypeScriptGeneratorOptions(
-				IncludeReferencePaths,
+				ReferencePaths,
 				OptionalMemberGenerationMode,
 				true,
 				notNullableTypeDiscovery);

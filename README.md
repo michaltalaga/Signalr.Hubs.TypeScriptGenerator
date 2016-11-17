@@ -24,7 +24,7 @@ The *Generate* method takes on input generator options (described in details bel
 with both items containing generated TypeScript. The first item contains generated declarations, while the second 
 contains exported code. 
 
-**NOTE:** Specifiying a specific assembly to scan is not suported, since the SignalR DefaultHubManager 
+**NOTE:** Specifiying a specific assembly to scan is not supported, since the SignalR DefaultHubManager 
 is used which looks up for Hub implementations in all loaded assemblies.
 
 #### TypeScriptGeneratorOptions
@@ -110,7 +110,7 @@ type declaration for nullable members. The default value is **false**.
 
 This option shall only be used when generated script is expected to be compiled
 with TypeScript 2.0 compiler using the *strictNullChecks* compiler option. In such case types of nullable members are 
-generated as *union* types, containing primary type, plus *null* type. All the *Nullable<>* and reference* types are 
+generated as *union* types, containing primary type, plus *null* type. All the *Nullable<>* and reference types are 
 generated as nullable (see also the option *NotNullableTypeDiscovery* below).
  
 Example C# code: 
@@ -138,9 +138,9 @@ When generated using *GenerateStrictTypes*=**true**::
 Identifies the method used to discover members that should not be declared as nullable, where otherwise they would be.
 This option is only applicable if the *GenerateStrictTypes* option is set to **true**. Otherwise, it is ignored.
 
-- *NotNullableTypeDiscovery.None* - use default approach (All *Nullable<>* and reference* types generated as nullable).
+- *NotNullableTypeDiscovery.None* - use default approach (All *Nullable<>* and reference types generated as nullable).
 - *NotNullableTypeDiscovery.UseRequiredAttribute* - treat members attrobiuted with 
-  *System.ComponentModel.DataAnnotations.RequiredAttribute* as not=-nullable.
+  *System.ComponentModel.DataAnnotations.RequiredAttribute* as non-nullable.
 
 Example C# code: 
 
@@ -209,6 +209,14 @@ Declarations and exports will be written to *hubs.d.ts* and *hubs.exports.ts*, i
 The declarations output path specifies file name, but exports file is missing; in this case, exports file anem will be derived
 from the declarations file. Declarations and exports created in *myapp_hubs.d.ts* and *myapp_hubs.exports.ts* files,
 in the *c:\temp\* directory.
+
+    generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\" -p DataMemberAttribute  -s -n RequiredAttribute -r "../signalr/index.d.ts;../jquery/index.d.ts"
+
+Declarations and exports file names are derived from input assembly file name. Output scripts will contains two 
+reference instructions. Interface members will be generated as optional depending on the *[DataMemberAttribute]* 
+applied to data contract properties. Reference and *Nullable<>* types will be generated as union types, explicitly 
+including *null* type except for interface members having *[Required]* attribute.
+
  
 **# ONLY COMBATIBLE WITH SIGNALR VERSIONS AT 2.2.1.0 OR EARLIER #**
 

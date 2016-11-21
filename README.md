@@ -180,8 +180,7 @@ The long name must be prepended by double hyphen ('*--*'). Below is the list of 
 | Option                      | Description |
 |-----------------------------|-----------------------------------------------------------------|
 | -a, --assembly              | **Required**. The path to the assembly (.dll/.exe) |
-| -o, --output                | The path to the generated file containing declarations code. If this is empty, the output file name is written to stdout. If it ends with directory separator, the path is treated as directory and the output file name is generated from supplied assembly file name and written to the folder specified by output path. |
-| -e, --exports               | The path to the generated file containing exported code. If this is empty, name is generated from the output file. Ignored if 'output' value not specified.")]
+| -o, --output                | The path to the generated file containing declarations code. If this is empty, the output file name is written to stdout. If it ends with directory separator, the path is treated as directory and the output file name is generated from supplied assembly file name and written to the folder specified by output path. Exports file name is always derived from the declarations file. |
 | -r, --references            | Optional. List of reference file paths, delimited by semicolon. The **"/// \<reference\/\>** instruction is added for each file. |
 | -p, --optionalMembers       | Default: *None*. Specifies method to discover members treated as optional: *None* - don't generate optional members; *DataMemberAttribute* - use [DataMember(IsRequired)] attribute. |
 | -s, --strictTypes           | Default: *False*. If true, union definitions with *null* are generated for nullable types. |
@@ -190,11 +189,13 @@ The long name must be prepended by double hyphen ('*--*'). Below is the list of 
 
 If the output file is not specified the result is written to standard out.
 
+**NOTE:** Exports file will be automatically added as *reference* in decalrations file.
+
 #### Usage examples:
 
 For brevity, executable name used in examples is *generate.exe*.
 
-    generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\myapp.hubs.d.ts" -e "c:\temp\myapp.hubs.exports.ts"
+    generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\myapp.hubs.d.ts"
 
 Generates declarations and exports content from the specified assembly into *myapp.hubs.d.ts* and 
 *myapp.hubs.exports.ts* files, respectively, in the "c:\temp\" directory. Default options will be used.
@@ -203,12 +204,6 @@ Generates declarations and exports content from the specified assembly into *mya
 
 The output path ending with directory separator will cause output file generated from the input assembly name.
 Declarations and exports will be written to *hubs.d.ts* and *hubs.exports.ts*, in the *c:\\temp\\* directory.
-
-    generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\myapp_hubs.d.ts"
-
-The declarations output path specifies file name, but exports file is missing; in this case, exports file anem will be derived
-from the declarations file. Declarations and exports created in *myapp_hubs.d.ts* and *myapp_hubs.exports.ts* files,
-in the *c:\temp\* directory.
 
     generate.exe -a "c:\myapp\hubs.dll" -o "c:\temp\" -p DataMemberAttribute  -s -n RequiredAttribute -r "../signalr/index.d.ts;../jquery/index.d.ts"
 

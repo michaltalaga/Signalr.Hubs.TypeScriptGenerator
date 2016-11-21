@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console;
+﻿using GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console;
 using NUnit.Framework;
 
 namespace Signalr.Hubs.TypeScriptGenerator.Console.Tests
@@ -22,85 +17,52 @@ namespace Signalr.Hubs.TypeScriptGenerator.Console.Tests
         }
 
         [Test]
-        [TestCase(null, null)]
-        [TestCase(null, "")]
-        [TestCase(null, " ")]
-        [TestCase("", null)]
-        [TestCase("", "")]
-        [TestCase("", " ")]
-        [TestCase(" ", null)]
-        [TestCase(" ", "")]
-        [TestCase(" ", " ")]
-        public void AdjustOutputPaths_WhenOutputIsEmpty_ThenResetsBothPathsToNull(string output, string exports)
+        [TestCase(null)]
+        [TestCase("")]
+        public void GetOutputPath_WhenOutputIsNullOrEmpty_ThenReturnsNullOrEmpty(string output)
         {
             // Arrange
             var sut = GetSUT();
             sut.Output = output;
-            sut.Exports = exports;
 
             // Act
-            sut.AdjustOutputPaths();
+            var outputPath = sut.GetOutputPath();
 
             // Assert
-            Assert.IsNull(sut.Output);
-            Assert.IsNull(sut.Exports);
+            Assert.That(outputPath, Is.EqualTo(output));
         }
 
         [Test]
-        public void AdjustOutputPaths_WhenPathsAreSpecified_DoesNotAlter()
+        public void GetOutputPath_WhenOutputIsNotDirectory_ReturnsTheSuppliedValue()
         {
             // Arrange
             var sut = GetSUT();
             var suppliedOutput = "supplied output";
-            var suppliedExports = "supplied exports";
             sut.Output = suppliedOutput;
-            sut.Exports = suppliedExports;
 
             // Act
-            sut.AdjustOutputPaths();
+            var outputPath = sut.GetOutputPath();
 
             // Assert
-            Assert.That(sut.Output, Is.EqualTo(suppliedOutput));
-            Assert.That(sut.Exports, Is.EqualTo(suppliedExports));
+            Assert.That(outputPath, Is.EqualTo(suppliedOutput));
         }
 
         [Test]
-        [TestCase(@".\", @".\assembly.d.ts", @".\assembly.exports.ts")]
-        [TestCase(@"\", @"\assembly.d.ts", @"\assembly.exports.ts")]
-        [TestCase(@"c:\ts\", @"c:\ts\assembly.d.ts", @"c:\ts\assembly.exports.ts")]
-        public void AdjustOutputPaths_WhenOutputIsDirectory_ThenGeneratesOutputPathFromAssembly(
-            string suppliedOutput, string expectedOutput, string expectedExports)
+        [TestCase(@".\", @".\assembly.d.ts")]
+        [TestCase(@"\", @"\assembly.d.ts")]
+        [TestCase(@"c:\ts\", @"c:\ts\assembly.d.ts")]
+        public void GetOutputPath_WhenOutputIsDirectory_ThenGeneratesOutputPathFromAssembly(
+            string suppliedOutput, string expectedOutput)
         {
             // Arrange
             var sut = GetSUT();
             sut.Output = suppliedOutput;
 
             // Act
-            sut.AdjustOutputPaths();
+            var outputPath = sut.GetOutputPath();
 
             // Assert
-            Assert.That(sut.Output, Is.EqualTo(expectedOutput));
-            Assert.That(sut.Exports, Is.EqualTo(expectedExports));
+            Assert.That(outputPath, Is.EqualTo(expectedOutput));
         }
-
-        [Test]
-        [TestCase(@"c:\ts\assembly.d.ts", @"c:\ts\assembly.exports.ts")]
-        [TestCase(@"c:\ts\assembly.ts", @"c:\ts\assembly.exports.ts")]
-        [TestCase(@"assembly.txt", @"assembly.exports.txt")]
-        [TestCase(@"assembly", @"assembly.exports")]
-        public void AdjustOutputPaths_WhenOutputIsDirectoryAndExportsIsEmpty_GeneratesExportsFromSuppliedOutput(
-            string suppliedOutput, string expectedExports)
-        {
-            // Arrange
-            var sut = GetSUT();
-            sut.Output = suppliedOutput;
-
-            // Act
-            sut.AdjustOutputPaths();
-
-            // Assert
-            Assert.That(sut.Exports, Is.EqualTo(expectedExports));
-        }
-
     }
 }

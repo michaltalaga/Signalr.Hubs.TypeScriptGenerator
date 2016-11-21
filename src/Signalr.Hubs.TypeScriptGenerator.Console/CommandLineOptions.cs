@@ -13,9 +13,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 		[Option('o', "output", HelpText = "The path to the file to generate. If this is empty, the output is written to stdout.")]
 		public string Output { get; set; }
 
-		[Option('e', "exports", HelpText = "The path to the generated file containing exported code. If this is empty, name is generated from the output file.")]
-		public string Exports { get; set; }
-
 		[Option('r', "references", HelpText = "Optional. List of file paths, delimited by semicolon to be added as the <reference/> instruction.", Required = false)]
 		public string References { get; set; }
 
@@ -73,53 +70,18 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 			}
 		}
 
-		private const string DeclarationFileExtension = ".d.ts";
-		private const string TypescriptFileExtension = ".ts";
-		private const string ExportsSuffix = ".exports";
-
 		/// <summary>
-		/// Analyzes output paths specified in command line options, and adjusts/generates file path as needed.
+		/// Analyzes specified output path, and returnes adjusted/generateed output file path.
 		/// </summary>
-		public void AdjustOutputPaths()
+		public string GetOutputPath()
 		{
-			if (string.IsNullOrWhiteSpace(Output))
-			{
-				Output = null;
-				Exports = null;
-				return;
-			}
+			if (string.IsNullOrWhiteSpace(Output) || Output[Output.Length - 1] != Path.DirectorySeparatorChar)
+				return Output;
 
-			if (Output[Output.Length - 1] == Path.DirectorySeparatorChar)
-			{
-				// Treat output path as directory, and generate output file name
+			// Treat output path as directory, and generate output file name.
 
-				var assemblyFileName = Path.GetFileNameWithoutExtension(AssemblyPath);
-				Output = Path.Combine(Output, Path.ChangeExtension(assemblyFileName, DeclarationFileExtension));
-			}
-
-			if (string.IsNullOrWhiteSpace(Exports))
-			{
-				// Generate from output file.
-
-				foreach (var knownExtension in new[] { DeclarationFileExtension, TypescriptFileExtension } )
-				{
-					if (Output.EndsWith(knownExtension, StringComparison.InvariantCultureIgnoreCase))
-					{
-						Exports = string.Concat(Output.Substring(0, Output.Length - knownExtension.Length), ExportsSuffix, TypescriptFileExtension);
-						return;
-					}
-				}
-
-				var extension = Path.GetExtension(Output);
-				if (!string.IsNullOrEmpty(extension))
-				{
-					Exports = Path.ChangeExtension(Output, ExportsSuffix + extension);
-				}
-				else
-				{
-					Exports = Output + ExportsSuffix;
-				}
-			}
+			var assemblyFileName = Path.GetFileNameWithoutExtension(AssemblyPath);
+			return Path.Combine(Output, Path.ChangeExtension(assemblyFileName, ".d.ts"));
 		}
 	}
 }

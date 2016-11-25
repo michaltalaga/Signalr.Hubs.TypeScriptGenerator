@@ -97,3 +97,23 @@ declare module @grouping.Key
 }
 </text>
 }
+// Enums
+@foreach (var grouping in Model.Enums.GroupBy(x => x.ModuleName))
+{
+<text>
+declare module @grouping.Key
+{
+	@foreach (EnumInfo enumInfo in grouping)
+	{
+	<text>
+	enum @enumInfo.InterfaceName
+	{
+	@foreach (MemberTypeInfo property in enumInfo.Properties)
+	{
+		<text>@Raw(property.Name) = @Raw(property.TypeScriptType),</text>
+	}
+	}</text>
+	}
+}
+</text>
+}

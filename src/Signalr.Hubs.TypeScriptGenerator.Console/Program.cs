@@ -52,9 +52,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 			string outputPath = commandLineOptions.GetOutputPath();
 			var exportsFilePath = GetExportsFilePath(outputPath);
 
-			var generatorOptions = GetTypeScriptGeneratorOptions(
-				commandLineOptions,
-				Path.GetFileName(exportsFilePath));
+			var generatorOptions = GetTypeScriptGeneratorOptions(commandLineOptions);
 
 			var hubTypeScriptGenerator = new HubTypeScriptGenerator();
 			var output = hubTypeScriptGenerator.Generate(generatorOptions);
@@ -64,24 +62,19 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 		}
 
 		private static TypeScriptGeneratorOptions GetTypeScriptGeneratorOptions(
-			CommandLineOptions commandLineOptions, string exportsPath)
+			CommandLineOptions commandLineOptions)
 		{
 			var options = TypeScriptGeneratorOptions.Default
 				.WithOptionalMembers(commandLineOptions.GetOptionalMemberGenerationMode());
+
 			if (commandLineOptions.StrictTypes)
 				options = options.WithStrictTypes(commandLineOptions.GetNotNullableTypeDiscovery());
 
-			// Exports file is always referenced from declarations.
-
-			var referencePaths = new List<string>();
-			referencePaths.Add(exportsPath);
-
-			// Add user references if any.
-
 			if (!string.IsNullOrEmpty(commandLineOptions.References))
-				referencePaths.AddRange(commandLineOptions.References.Split(';'));
+				options = options.WithReferencePaths(commandLineOptions.References);
 
-			return options.WithReferencePaths(referencePaths.ToArray());
+			return options;
+
 		}
 
 		private static string GetExportsFilePath(string outputPath)

@@ -15,34 +15,35 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 	internal class TypeHelper
 	{
 		private readonly HashSet<Type> doneTypes;
-
-		public readonly Stack<Type> InterfaceTypes;
-		public readonly Stack<Type> EnumTypes;
+		public readonly Queue<Type> InterfaceTypes;
+		public readonly HashSet<Type> EnumTypes;
 		public readonly TypeScriptGeneratorOptions Options;
 
 		public TypeHelper(TypeScriptGeneratorOptions options)
 		{
 			Options = options;
 			doneTypes = new HashSet<Type>();
-			InterfaceTypes = new Stack<Type>();
-			EnumTypes = new Stack<Type>();
+			InterfaceTypes = new Queue<Type>();
+			EnumTypes = new HashSet<Type>();
 		}
 
-		public List<FunctionDetails> GetClientFunctions(Type hubType)
+		public List<Models.MethodInfo> GetClientMethods(Type hubType)
 		{
-			var list = new List<FunctionDetails>();
+			var list = new List<Models.MethodInfo>();
 
 			var clientType = ClientType(hubType);
 			if (clientType != null)
 			{
 				foreach (var method in clientType.GetMethods())
 				{
-					// TODO [PS] Clarify if/how optional parameters should be generated?
-
 					var ps = method.GetParameters().Select(x => x.Name + " : " + GetTypeContractName(x.ParameterType));
 					var functionName = FirstCharLowered(method.Name);
 					var functionArgs = "(" + string.Join(", ", ps) + ")";
-					list.Add(new FunctionDetails(functionName, functionArgs, null));
+
+					string reasonDeprecated;
+					bool isDeprecated = method.IsDeprecated(out reasonDeprecated);
+
+					list.Add(new Models.MethodInfo(functionName, isDeprecated, reasonDeprecated, functionArgs));
 				}
 			}
 
@@ -122,7 +123,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				}
 			}
 
-
 			if (type.Namespace == "System")
 			{
 				var typeNameLowerCase = type.Name.ToLowerInvariant();
@@ -149,33 +149,89 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 
 					case "guid":
 						return TypeInfo.String;
+
+					case "object":
+						return TypeInfo.Any;
 				}
 			}
 
-			if (!doneTypes.Contains(type))
+			AddCustomType(type);
+			return TypeInfo.Simple(GenericSpecificName(type, true));
+		}
+
+		public void AddCustomType(Type type)
+		{
+			if (type == null || type == typeof(ValueType) || type == typeof(object))
+				return;
+
+			if (!doneTypes.Add(type))
+				return; // Already handled.
+
+			if (type.IsEnum)
 			{
-				doneTypes.Add(type);
-				if (type.IsEnum)
+				EnumTypes.Add(type);
+			}
+			else
+			{
+				InterfaceTypes.Enqueue(type);
+				AddCustomType(type.BaseType);
+			}
+		}
+
+		public void DiscoverAdditionalTypes(Type dataContractType)
+		{
+			switch (Options.IncludedTypesDiscovery)
+			{
+				case IncludedTypesDiscovery.None:
+					break;
+
+				case IncludedTypesDiscovery.UseKnownTypeAttribute:
+					foreach (var knownType in GetKnownTypes(dataContractType))
+					{
+						AddCustomType(knownType);
+					}
+					break;
+
+				default:
+					throw new NotSupportedException($"Specified additional types discovery method is not supported: {Options.IncludedTypesDiscovery}.");
+			}
+		}
+
+		private IEnumerable<Type> GetKnownTypes(Type type)
+		{
+			foreach (var attribute in type.GetCustomAttributes<KnownTypeAttribute>(false))
+			{
+				if (!string.IsNullOrEmpty(attribute.MethodName))
 				{
-					EnumTypes.Push(type);
+					var methodInfo = type.GetMethod(attribute.MethodName, 
+						BindingFlags.Public|
+						BindingFlags.NonPublic|
+						BindingFlags.Static |
+						BindingFlags.DeclaredOnly, 
+						null, new Type[0], null);
+					if (methodInfo != null)
+					{
+						Type[] knownTypes = null;
+						try
+						{
+							knownTypes = methodInfo.Invoke(null, null) as Type[];
+						}
+						catch (Exception)
+						{
+							// Eat it.
+						}
+						if (knownTypes != null)
+						{
+							foreach (var knownType in knownTypes)
+								yield return knownType;
+						}
+					}
 				}
 				else
 				{
-					InterfaceTypes.Push(type);
-					var baseType = type.BaseType;
-					while (baseType != null 
-						&& baseType != typeof(ValueType) 
-						&& baseType != typeof(object) 
-						&& !doneTypes.Contains(baseType))
-					{
-						doneTypes.Add(baseType);
-						InterfaceTypes.Push(baseType);
-						baseType = baseType.BaseType;
-					}
+					yield return attribute.Type;
 				}
 			}
-
-			return TypeInfo.Simple(GenericSpecificName(type, true));
 		}
 
 		/// <summary>
@@ -222,7 +278,11 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			var dataMemberAttribute = prop.GetCustomAttribute<DataMemberAttribute>();
 			var modelName = string.IsNullOrWhiteSpace(dataMemberAttribute?.Name) ? prop.Name : dataMemberAttribute.Name;
 			var modelType = GetTypeContractInfo(propType, IsNotNullableProperty(prop));
-			return new MemberTypeInfo(modelName, modelType.Name, IsOptionalProperty(prop));
+
+			string reasonDeprecated;
+			bool isDeprecated = prop.IsDeprecated(out reasonDeprecated);
+
+			return new MemberTypeInfo(modelName, isDeprecated, reasonDeprecated, modelType.Name, IsOptionalProperty(prop));
 		}
 
 		private bool IsOptionalProperty(PropertyInfo prop)

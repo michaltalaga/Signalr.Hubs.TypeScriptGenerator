@@ -79,13 +79,19 @@
   <ItemGroup>
     <Compile Include="AssemblyLoader.cs" />
     <Compile Include="Helpers\HubHelper.cs" />
+    <Compile Include="Helpers\MemberInfoExtensions.cs" />
+    <Compile Include="Helpers\MethodDescriptorExtensions.cs" />
     <Compile Include="Helpers\TypeInfo.cs" />
     <Compile Include="Helpers\TypeKind.cs" />
     <Compile Include="Models\ClientInfo.cs" />
+    <Compile Include="Models\EnumMemberInfo.cs" />
+    <Compile Include="Models\MemberInfo.cs" />
+    <Compile Include="Models\ContractInfo.cs" />
     <Compile Include="Models\DataContractInfo.cs" />
     <Compile Include="Models\TypesModel.cs" />
     <Compile Include="Models\EnumInfo.cs" />
-    <Compile Include="Models\FunctionDetails.cs" />
+    <Compile Include="Models\MethodInfo.cs" />
+    <Compile Include="IncludedTypesDiscovery.cs" />
     <Compile Include="NotNullableTypeDiscovery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\ServiceInfo.cs" />

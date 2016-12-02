@@ -1,33 +1,34 @@
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 {
-	public class ServiceInfo
+	public class ServiceInfo : ContractInfo
 	{
-		public string ModuleName { get; }
-
-		public string InterfaceName { get; }
-
 		public string ClientType { get; }
 
 		public string ServerType { get; }
 
 		public string ServerFullType => string.Concat(ModuleName, ".", ServerType);
 
-		public List<FunctionDetails> ServerFunctions { get; }
+		public List<MethodInfo> Methods { get; }
 
-		public ServiceInfo(string moduleName, string interfaceName, string clientType, string serverType, List<FunctionDetails> serverFunctions)
+		public ServiceInfo(
+			string name, bool isDeprecated, string reasonDeprecated, string moduleName, 
+			string clientType, string serverType, List<MethodInfo> methods)
+			: base(name, isDeprecated, reasonDeprecated, moduleName)
 		{
-			ModuleName = moduleName;
-			InterfaceName = interfaceName;
 			ClientType = clientType;
 			ServerType = serverType;
-			ServerFunctions = serverFunctions;
+			Methods = methods;
 		}
 
 		public override string ToString()
 		{
-			return $"ModuleName:{ModuleName},InterfaceName:{InterfaceName},ClientType:{ClientType}";
+			return string.Concat(
+				base.ToString(), 
+				$"; ClientType:{ClientType}; ServerType: {ServerType}; Methods: {string.Join(", ", Methods.Select(m => m.Name))}");
 		}
 	}
 }

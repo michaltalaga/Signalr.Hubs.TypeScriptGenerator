@@ -36,6 +36,12 @@
 		/// </summary>
 		public NotNullableTypeDiscovery NotNullableTypeDiscovery { get; }
 
+		/// <summary>
+		/// Specifies the method used to discover additional types to be included in the generated TypeScript
+		/// which are not directly used in Hub methods.
+		/// </summary>
+		public IncludedTypesDiscovery IncludedTypesDiscovery { get; }
+
 		private TypeScriptGeneratorOptions()
 		{
 		}
@@ -44,12 +50,14 @@
 			string[] referencePaths,
 			OptionalMemberGenerationMode optionalMemberGenerationMode, 
 			bool generateStrictTypes, 
-			NotNullableTypeDiscovery notNullableTypeDiscovery)
+			NotNullableTypeDiscovery notNullableTypeDiscovery,
+			IncludedTypesDiscovery includedTypesDiscovery)
 		{
 			ReferencePaths = referencePaths;
 			OptionalMemberGenerationMode = optionalMemberGenerationMode;
 			GenerateStrictTypes = generateStrictTypes;
-			NotNullableTypeDiscovery = notNullableTypeDiscovery;	
+			NotNullableTypeDiscovery = notNullableTypeDiscovery;
+			IncludedTypesDiscovery = includedTypesDiscovery;
 		}
 
 		/// <summary>
@@ -64,7 +72,8 @@
 				referencePaths,
 				OptionalMemberGenerationMode,
 				GenerateStrictTypes,
-				NotNullableTypeDiscovery);
+				NotNullableTypeDiscovery,
+				IncludedTypesDiscovery);
 		}
 
 		public TypeScriptGeneratorOptions WithOptionalMembers(
@@ -74,7 +83,8 @@
 				ReferencePaths,
 				requiredMemberDiscovery,
 				GenerateStrictTypes,
-				NotNullableTypeDiscovery);
+				NotNullableTypeDiscovery,
+				IncludedTypesDiscovery);
 		}
 
 		public TypeScriptGeneratorOptions WithStrictTypes(
@@ -84,7 +94,19 @@
 				ReferencePaths,
 				OptionalMemberGenerationMode,
 				true,
-				notNullableTypeDiscovery);
+				notNullableTypeDiscovery,
+				IncludedTypesDiscovery);
+		}
+
+		public TypeScriptGeneratorOptions WithIncludedTypes(
+			IncludedTypesDiscovery includedTypesDiscovery)
+		{
+			return new TypeScriptGeneratorOptions(
+				ReferencePaths,
+				OptionalMemberGenerationMode,
+				GenerateStrictTypes,
+				NotNullableTypeDiscovery,
+				includedTypesDiscovery);
 		}
 	}
 }

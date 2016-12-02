@@ -1,23 +1,35 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 {
-	public class EnumInfo
+	public class EnumInfo : ContractInfo
 	{
-		public string ModuleName { get; }
-		public string InterfaceName { get; }
-		public List<MemberTypeInfo> Properties { get; }
+		public List<EnumMemberInfo> Members { get; }
 
-		public EnumInfo(string moduleName, string interfaceName, List<MemberTypeInfo> properties)
+		/// <summary>
+		/// Initializes new instance of<see cref="EnumInfo"/> with supplied values.
+		/// </summary>
+		/// <param name="name">Contract name.</param>
+		/// <param name="isDeprecated">Indicates if the type system member is deprecated.</param>
+		/// <param name="reasonDeprecated">text message describing the reason for the contract being marked as obsolete (optional).</param>
+		/// <param name="moduleName">Module name.</param>
+		/// <param name="members"></param>
+		public EnumInfo(
+			string name, bool isDeprecated, string reasonDeprecated, string moduleName,
+			List<EnumMemberInfo> members)
+			: base(name, isDeprecated, reasonDeprecated, moduleName)
 		{
-			ModuleName = moduleName;
-			InterfaceName = interfaceName;
-			Properties = properties;
+			if (members == null)
+				throw new ArgumentNullException(nameof(members));
+
+			Members = members;
 		}
 
 		public override string ToString()
 		{
-			return $"ModuleName:{ModuleName},InterfaceName:{InterfaceName};Properties:[{string.Join(",", Properties)}]";
+			return string.Concat(base.ToString(), $"; Values:[{string.Join(",", Members.Select(m => m.ToString()))}]");
 		}
 	}
 }

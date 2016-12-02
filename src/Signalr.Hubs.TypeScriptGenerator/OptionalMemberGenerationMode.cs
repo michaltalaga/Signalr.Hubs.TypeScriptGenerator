@@ -17,5 +17,5 @@
 		/// <see langword="false"/> (default value) as optional.
 		/// </summary>
 		UseDataMemberAttribute
-	};
+	}
 }

@@ -91,6 +91,7 @@
     <Compile Include="Models\TypesModel.cs" />
     <Compile Include="Models\EnumInfo.cs" />
     <Compile Include="Models\MethodInfo.cs" />
+    <Compile Include="IncludedTypesDiscovery.cs" />
     <Compile Include="NotNullableTypeDiscovery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Models\ServiceInfo.cs" />

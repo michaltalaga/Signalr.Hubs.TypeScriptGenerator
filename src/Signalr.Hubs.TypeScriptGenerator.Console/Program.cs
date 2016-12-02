@@ -65,7 +65,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 			CommandLineOptions commandLineOptions)
 		{
 			var options = TypeScriptGeneratorOptions.Default
-				.WithOptionalMembers(commandLineOptions.GetOptionalMemberGenerationMode());
+				.WithOptionalMembers(commandLineOptions.GetOptionalMemberGenerationMode())
+				.WithIncludedTypes(commandLineOptions.GetIncludedTypesDiscovery());
 
 			if (commandLineOptions.StrictTypes)
 				options = options.WithStrictTypes(commandLineOptions.GetNotNullableTypeDiscovery());

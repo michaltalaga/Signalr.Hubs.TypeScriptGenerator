@@ -7,6 +7,8 @@ Our usage at Genius Sports is to generate the Hub proxies at build time using ou
 
 ## Features
 - Interfaces generated for all data contracts used in the Hub methods arguments.
+- For types not used in any Hub method signature, interface is generated if the type is declared with 
+  *KnownTypeAttribute* in any of directly used data contracts.
 - *@deprecated* JSDoc comment added for members marked with ObsoleteAttribute. Properties and eumeration members
   included, although might be not supported by JSDoc.
 - Optional data members can be generated in interface.
@@ -178,15 +180,16 @@ Can be used to generate TypeScipt by supplying input from command line.
 Options can be specified using short or long names. The short names are single character prepended with hyphen ('**-**').
 The long name must be prepended by double hyphen ('*--*'). Below is the list of supported options.
 
-| Option                      | Description |
-|-----------------------------|-----------------------------------------------------------------|
-| -a, --assembly              | **Required**. The path to the assembly (.dll/.exe) |
-| -o, --output                | The path to the generated file containing declarations code. If this is empty, the output file name is written to stdout. If it ends with directory separator, the path is treated as directory and the output file name is generated from supplied assembly file name and written to the folder specified by output path. Exports file name is always derived from the declarations file. |
-| -r, --references            | Optional. List of reference file paths, delimited by semicolon. The **"/// \<reference\/\>** instruction is added for each file. |
-| -p, --optionalMembers       | Default: *None*. Specifies method to discover members treated as optional: *None* - don't generate optional members; *DataMemberAttribute* - use [DataMember(IsRequired)] attribute. |
-| -s, --strictTypes           | Default: *False*. If true, union definitions with *null* are generated for nullable types. |
-| -n, --notNullableTypes      | Default: *None*. Specifies method to discover members treated as not-nullable: RequiredAttribute: - use [Required] attribute. |
-| --help                      | Display help screen.
+| Option                  | Description |
+|-------------------------|-----------------------------------------------------------------|
+| -a, --assembly          | **Required**. The path to the assembly (.dll/.exe) |
+| -o, --output            | The path to the generated file containing declarations code. If this is empty, the output file name is written to stdout. If it ends with directory separator, the path is treated as directory and the output file name is generated from supplied assembly file name and written to the folder specified by output path. Exports file name is always derived from the declarations file. |
+| -r, --references        | Optional. List of reference file paths, delimited by semicolon. The **"/// \<reference\/\>** instruction is added for each file. |
+| -p, --optionalMembers   | Default: *None*. Specifies method to discover members treated as optional. Supported values:<br>*None* - don't generate optional members.<br>*DataMemberAttribute* - use [DataMember(IsRequired)] attribute. |
+| -s, --strictTypes       | Default: *False*. If true, union definitions with *null* are generated for nullable types. |
+| -n, --notNullableTypes  | Default: *None*. Specifies method to discover members treated as not-nullable. Supported values:<br>*None* - don't generate optional members.<br>*RequiredAttribute* - use [Required] attribute. |
+| -i, --includeTypes      | Default: *None*. Specifies methods to discover additional types to be included. Supported values:<br>*None* - don't look for additional types. <br>*KnownTypeAttribute* - include classes declared with [KnownType] attribute in data contracts included. |
+| --help                  | Display help screen.
 
 If the output file is not specified the result is written to standard out.
 
@@ -271,7 +274,7 @@ following code:
     // Changes to this file may cause incorrect behavior and will be lost if
     // the code is regenerated.
     //
-    // 2016-12-01 21:31:48Z
+    // 2016-12-02 13:00:02Z
     // https://github.com/geniussportsgroup/Signalr.Hubs.TypeScriptGenerator
     //
     // </auto-generated>
@@ -308,7 +311,6 @@ following code:
              * @deprecated
              */
             getSomething() : JQueryPromise<GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingDto>;
-            getInheritedSomething() : JQueryPromise<GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InheritedSomethingDto>;
             /*
              * @deprecated for testing reasons.
              */
@@ -359,6 +361,15 @@ following code:
 
     // Data contracts
     declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts {
+        interface SomethingDto {
+            iChangedTheName? : string | null;
+            requiredString : string | null;
+            OptionalGuid? : string | null;
+            RequiredGuid : string;
+            NullableRequiredGuid : string;
+            OptionalInnerSomething? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto;
+        }
+
         interface OtherSomethingDto {
             RequiredString : string | null;
             OptionalDateTime? : Date;
@@ -367,18 +378,19 @@ following code:
         }
 
         interface InnerSomethingDto {
-            InnerProperty1? : number;
+            InnerPropertyInt? : number;
             innerProperty2? : Date;
             /*
              * @deprecated Do not use properties with crazy names.
              */
             innerProperty3WithCrazyCustomName? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingEnum;
+            inner123? : any;
         }
 
         /*
          * @deprecated Will be removed in beta version.
          */
-        interface InheritedSomethingDto extends GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingDto{
+        interface InheritedSomethingDto extends GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingDto {
             OptionalInteger? : number;
             NullableInteger : number | null;
             /*
@@ -387,13 +399,25 @@ following code:
             OptionalNullableInteger? : number | null;
         }
 
-        interface SomethingDto {
-            iChangedTheName? : string | null;
-            requiredString : string | null;
-            OptionalGuid? : string | null;
-            RequiredGuid : string;
-            NullableRequiredGuid : string;
-            OptionalInnerSomething? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto;
+        interface InnerSomethingDto1 {
+            Dto2? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto4;
+        }
+
+        interface InnerSomethingDto2 {
+            Dto4? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto4;
+        }
+
+        interface InnerSomethingDto3 {
+            InnerProperty3? : number;
+        }
+
+        interface InnerSomethingDto4 {
+            Dto5? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto5;
+        }
+
+        interface InnerSomethingDto5 {
+            Dto3? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto3;
+            Enum5 : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.Enum5;
         }
 
     }
@@ -413,8 +437,12 @@ following code:
             Three = 303,
         }
 
-    }
+        enum Enum5 {
+            None = 0,
+            Five = 1,
+        }
 
+    }
 
 ### Generated Exports
 
@@ -426,7 +454,7 @@ following code:
     // Changes to this file may cause incorrect behavior and will be lost if
     // the code is regenerated.
     //
-    // 2016-12-01 21:31:48Z
+    // 2016-12-02 13:01:17Z
     // https://github.com/geniussportsgroup/Signalr.Hubs.TypeScriptGenerator
     //
     // </auto-generated>
@@ -445,6 +473,11 @@ following code:
              * @deprecated Do not use this value. Defined for backward compatibility.
              */
             Three = 303,
+        }
+
+        export enum Enum5 {
+            None = 0,
+            Five = 1,
         }
 
     }

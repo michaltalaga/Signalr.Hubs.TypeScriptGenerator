@@ -44,6 +44,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 
 		public static readonly TypeInfo String = new TypeInfoPredefined("string");
 
+		public static readonly TypeInfo Any = new TypeInfoPredefined("any");
+
 		public static TypeInfo Simple(string name)
 		{
 			return new TypeInfoSimple(name);

@@ -5,6 +5,7 @@ using System.ComponentModel.DataAnnotations;
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
 {
 	[DataContract]
+	[KnownType(typeof(InheritedSomethingDto))]
 	public class SomethingDto
 	{
 		[DataMember(Name = "iChangedTheName")]

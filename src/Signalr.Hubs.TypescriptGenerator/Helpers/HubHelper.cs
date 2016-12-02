@@ -98,7 +98,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 
 			while (typeHelper.InterfaceTypes.Count != 0)
 			{
-				var type = typeHelper.InterfaceTypes.Pop();
+				var type = typeHelper.InterfaceTypes.Dequeue();
 				var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
 					.Select(prop => typeHelper.GetPropertyInfo(prop)).ToList();
 				var baseType  = type.BaseType;
@@ -112,6 +112,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				list.Add(new DataContractInfo(
 					typeHelper.GenericSpecificName(type, false), isDeprecated, reasonDeprecated, type.Namespace, 
 					bases, properties));
+
+				typeHelper.DiscoverAdditionalTypes(type);
 			}
 
 			return list;
@@ -121,10 +123,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 		{
 			var list = new List<EnumInfo>();
 
-			while (typeHelper.EnumTypes.Count != 0)
+			foreach (var type in typeHelper.EnumTypes)
 			{
-				var type = typeHelper.EnumTypes.Pop();
-
 				var enumProperties = Enum.GetNames(type).Select(memberName => GetEnumMemberInfo(type, memberName)).ToList();
 
 				string reasonDeprecated;
@@ -148,7 +148,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			return new EnumMemberInfo(
 				memberName, isDeprecated, reasonDeprecated,
 				enumMember.GetRawConstantValue());
-			// $"{Enum.Parse(type, propertyName):D}"))
 		}
 	}
 }

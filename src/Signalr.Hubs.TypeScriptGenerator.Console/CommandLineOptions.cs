@@ -25,8 +25,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 		[Option('n', "notNullableTypes", HelpText = "Specifies method to discover members treated as not-nullable: RequiredAttribute: - use [Required] attribute.", Required = false)]
 		public string NotNullableTypes { get; set; }
 
-		[Option("includeSourceDetails", HelpText = "Adds details on source assembly (name, version) to the header comment of the generated files.", DefaultValue = false, Required = false)]
-		public bool IncludeSourceDetails { get; set; }
+		[Option('i', "includeTypes", HelpText = "Specifies methods to discover additional types to be included. KnownTypeAttribute - include classes declared with [KnownType] attribute.", Required = false)]
+		public string IncludeTypes { get; set; }
 
 		[HelpOption]
 		public string GetUsage()
@@ -67,6 +67,24 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 
 				default:
 					throw new NotSupportedException($"Specified required member discovery option is not supported: {NotNullableTypes}");
+			}
+		}
+
+		public IncludedTypesDiscovery GetIncludedTypesDiscovery()
+		{
+			if (string.IsNullOrEmpty(IncludeTypes))
+				return IncludedTypesDiscovery.None;
+
+			switch (IncludeTypes.ToLowerInvariant())
+			{
+				case "none":
+					return IncludedTypesDiscovery.None;
+
+				case "knowntypeattribute":
+					return IncludedTypesDiscovery.UseKnownTypeAttribute;
+
+				default:
+					throw new NotSupportedException($"Specified included types discovery option is not supported: {IncludeTypes}");
 			}
 		}
 

@@ -5,6 +5,13 @@ Utility library for generating typescript definitions for Signalr Hubs. This is 
 
 Our usage at Genius Sports is to generate the Hub proxies at build time using our [geniussportsgroup/SignalR.ProxyGenerator](https://github.com/geniussportsgroup/SignalR.ProxyGenerator "Proxy Generator") publishing them to our internal NPM feed. We then use this tool to generate TypeScript definitions our those proxies again publishing them to our internal NPM feed. This allows our UI developers to get strongly typed Hub APIs and allows us to do proper Continous Integrtaion between the back end and front end. Move quickly and break fast.
 
+## Features
+- Interfaces generated for all data contracts used in the Hub methods arguments.
+- *@deprecated* JSDoc comment added for members marked with ObsoleteAttribute. Properties and eumeration members
+  included, although might be not supported by JSDoc.
+- Optional data members can be generated in interface.
+- Strong type declarations can be generated to support TypeScript 2 compiled with *--strictTypeChecks* option.
+- *Enum* types generated also in the separate *.exports.ts* file to enable using those in client code.
 
 ## Installation - Nuget
 
@@ -86,8 +93,7 @@ Example C# code:
 
 When generated using *OptionalMemberGenerationMode.None*:
 
-    interface SampleDto
-    {
+    interface SampleDto {
         phoneNumber1 : string;
         phoneNumber2 : string;
         phoneNumber3 : string;
@@ -96,8 +102,7 @@ When generated using *OptionalMemberGenerationMode.None*:
      
 When generated using *OptionalMemberGenerationMode.UseDataMemberAttribute*:
 
-    interface SampleDto
-    {
+    interface SampleDto {
         phoneNumber1? : string;
         phoneNumber2? : string;
         phoneNumber3 : string;
@@ -122,15 +127,13 @@ Example C# code:
 
 When generated using *GenerateStrictTypes*=**false**:
 
-    interface SampleDto
-    {
+    interface SampleDto {
         address : string;
     }
      
 When generated using *GenerateStrictTypes*=**true**::
 
-    interface SampleDto
-    {
+    interface SampleDto {
         address : string | null;
     }
 
@@ -154,8 +157,7 @@ Example C# code:
 
 When generated using *NotNullableTypeDiscovery.None*:
 
-    interface SampleDto
-    {
+    interface SampleDto {
         addressLine1 : string;
         addressLine2 : string;
         clientCode : number;
@@ -163,8 +165,7 @@ When generated using *NotNullableTypeDiscovery.None*:
      
 When generated using *NotNullableTypeDiscovery.UseRequiredAttribute*:
 
-    interface SampleDto
-    {
+    interface SampleDto {
         addressLine1 : string;
         addressLine2 : string | null;
         clientCode : number | null;
@@ -226,7 +227,7 @@ We have compiled this at verison 2.2.1.0 so in order for the HubManager to recog
 Sometimes the serialized name of your data contract properties are changed from the actual C# property name. This is done through the DataMember property:
 
     [DataContract]
-    public class SomethingDto
+    public class SomethingDto 
     {
         [DataMember(Name = "iChangedTheName")]
         public string Property1 { get; set; }
@@ -237,10 +238,8 @@ Sometimes the serialized name of your data contract properties are changed from 
 
 This library will respect the DataMember name and use this as the TypeScript property name:
     
-    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
-    {
-        interface SomethingDto
-        {
+    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts {
+        interface SomethingDto {
             iChangedTheName : string;
             Property2 : System.Guid;
         }
@@ -272,19 +271,19 @@ following code:
     // Changes to this file may cause incorrect behavior and will be lost if
     // the code is regenerated.
     //
-    // 2016-11-17 19:34:00Z
+    // 2016-12-01 21:31:48Z
     // https://github.com/geniussportsgroup/Signalr.Hubs.TypeScriptGenerator
     //
     // </auto-generated>
     //------------------------------------------------------------------------------
 
-    /// <reference path="../signalr/index.d.ts" />
-    /// <reference path="../jquery/index.d.ts" />
 
     // Hubs
 
-    interface SignalR
-    {
+    interface SignalR {
+        /*
+         * @deprecated Superseded by HubB.
+         */
         hubA : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.HubA;
         hubC : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.HubC;
         hubB : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.HubB;
@@ -292,84 +291,103 @@ following code:
 
     // Service contracts
 
-    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs
-    {
-        interface HubA
-        {
+    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs {
+        /*
+         * @deprecated Superseded by HubB.
+         */
+        interface HubA {
             server : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.HubAServer;
             client : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.IHubAClient;
         }
 
-        interface HubAServer
-        {
+        /*
+         * @deprecated Superseded by HubB.
+         */
+        interface HubAServer {
+            /*
+             * @deprecated
+             */
             getSomething() : JQueryPromise<GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingDto>;
             getInheritedSomething() : JQueryPromise<GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InheritedSomethingDto>;
+            /*
+             * @deprecated for testing reasons.
+             */
             ping() : JQueryPromise<void>;
         }
-        interface HubC
-        {
+
+        interface HubC {
             server : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.HubCServer;
-            // TODO: Hub does not have a Client Interface as a generic argument - it is recommended to add one.
+             // TODO: Hub does not have a Client Interface as a generic argument - it is recommended to add one.
             client : any;
         }
 
-        interface HubCServer
-        {
+        interface HubCServer {
             aServerSideMethod() : JQueryPromise<void>;
         }
-        interface HubB
-        {
+
+        interface HubB {
             server : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.HubBServer;
             client : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs.IHubBClient;
         }
 
-        interface HubBServer
-        {
+        interface HubBServer {
             getOtherSomething() : JQueryPromise<GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.OtherSomethingDto>;
             doOtherSomethingElse() : JQueryPromise<void>;
         }
+
     }
 
     // Clients
 
-    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs
-    {
-        interface IHubAClient
-        {
+    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.Hubs {
+        interface IHubAClient {
+            /*
+             * @deprecated
+             */
             pong : () => void;
+            /*
+             * @deprecated for testing reasons.
+             */
             takeThis : (somethingDto : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingDto) => void;
         }
-        interface IHubBClient
-        {
+
+        interface IHubBClient {
             takeOtherThis : (otherSomethingDto : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.OtherSomethingDto) => void;
         }
+
     }
 
     // Data contracts
-
-    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
-    {
-        interface OtherSomethingDto 
-        {
+    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts {
+        interface OtherSomethingDto {
             RequiredString : string | null;
             OptionalDateTime? : Date;
             OptionalInnerSomething? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto;
             RequiredInnerSomething : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto;
         }
-        interface InnerSomethingDto 
-        {
+
+        interface InnerSomethingDto {
             InnerProperty1? : number;
             innerProperty2? : Date;
+            /*
+             * @deprecated Do not use properties with crazy names.
+             */
             innerProperty3WithCrazyCustomName? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingEnum;
         }
-        interface InheritedSomethingDto extends GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingDto
-        {
+
+        /*
+         * @deprecated Will be removed in beta version.
+         */
+        interface InheritedSomethingDto extends GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.SomethingDto{
             OptionalInteger? : number;
             NullableInteger : number | null;
+            /*
+             * @deprecated This might be removed in next version.
+             */
             OptionalNullableInteger? : number | null;
         }
-        interface SomethingDto 
-        {
+
+        interface SomethingDto {
             iChangedTheName? : string | null;
             requiredString : string | null;
             OptionalGuid? : string | null;
@@ -377,7 +395,26 @@ following code:
             NullableRequiredGuid : string;
             OptionalInnerSomething? : GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts.InnerSomethingDto;
         }
+
     }
+
+    // Enums
+
+    declare module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts {
+        /*
+         * @deprecated
+         */
+        enum SomethingEnum {
+            One = 101,
+            Two = 202,
+            /*
+             * @deprecated Do not use this value. Defined for backward compatibility.
+             */
+            Three = 303,
+        }
+
+    }
+
 
 ### Generated Exports
 
@@ -389,7 +426,7 @@ following code:
     // Changes to this file may cause incorrect behavior and will be lost if
     // the code is regenerated.
     //
-    // 2016-11-17 19:42:25Z
+    // 2016-12-01 21:31:48Z
     // https://github.com/geniussportsgroup/Signalr.Hubs.TypeScriptGenerator
     //
     // </auto-generated>
@@ -397,12 +434,17 @@ following code:
 
     // Enums
 
-    export module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
-    {
-        export enum SomethingEnum
-        {
-            One = 0,
-            Two = 1,
-            Three = 2,
+    export module GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts {
+        /*
+         * @deprecated
+         */
+        export enum SomethingEnum {
+            One = 101,
+            Two = 202,
+            /*
+             * @deprecated Do not use this value. Defined for backward compatibility.
+             */
+            Three = 303,
         }
+
     }

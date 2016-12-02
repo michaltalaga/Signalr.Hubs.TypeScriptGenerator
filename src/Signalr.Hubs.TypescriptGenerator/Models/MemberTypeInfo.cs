@@ -1,15 +1,12 @@
+using System;
+
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 {
 	/// <summary>
 	/// Describes representation of the named and typed code element (interface member property or function argument).
 	/// </summary>
-	public class MemberTypeInfo
+	public class MemberTypeInfo : MemberInfo
 	{
-		/// <summary>
-		/// Name of the member described by this <see cref="MemberTypeInfo"/>.
-		/// </summary>
-		public string Name { get; }
-
 		/// <summary>
 		/// Name of the member described by this <see cref="MemberTypeInfo"/>,
 		/// decorated with <i>optional</i> specifier (<c>?</c>) if <see cref="IsOptional"/> is <see langword="true"/>.
@@ -28,20 +25,31 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 		public bool IsOptional { get; }
 
 		public MemberTypeInfo(string name, string typescriptType)
-			: this(name, typescriptType, false)
+			: this(name, false, null, typescriptType, false)
 		{
 		}
 
-		public MemberTypeInfo(string name, string typescriptType, bool isOptional)
+		/// <summary>
+		/// Initializes new instance of<see cref="MemberTypeInfo"/> with supplied values.
+		/// </summary>
+		/// <param name="name"></param>
+		/// <param name="typescriptType"></param>
+		/// <param name="isOptional"></param>
+		/// <param name="isDeprecated"></param>
+		/// <param name="reasonDeprecated"></param>
+		public MemberTypeInfo(string name, bool isDeprecated, string reasonDeprecated, string typescriptType, bool isOptional)
+			: base(name, isDeprecated, reasonDeprecated)
 		{
-			Name = name;
+			if (typescriptType == null)
+				throw new ArgumentNullException(nameof(typescriptType));
+
 			TypeScriptType = typescriptType;
 			IsOptional = isOptional;
 		}
 
 		public override string ToString()
 		{
-			return $"{DeclaredName} : {TypeScriptType}";
+			return string.Concat(base.ToString(), $"; TypeScriptType:{TypeScriptType}; IsOptional:{IsOptional}");
 		}
 	}
 }

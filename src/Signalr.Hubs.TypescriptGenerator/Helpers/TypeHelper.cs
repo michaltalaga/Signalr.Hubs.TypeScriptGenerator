@@ -28,21 +28,23 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			EnumTypes = new Stack<Type>();
 		}
 
-		public List<FunctionDetails> GetClientFunctions(Type hubType)
+		public List<Models.MethodInfo> GetClientMethods(Type hubType)
 		{
-			var list = new List<FunctionDetails>();
+			var list = new List<Models.MethodInfo>();
 
 			var clientType = ClientType(hubType);
 			if (clientType != null)
 			{
 				foreach (var method in clientType.GetMethods())
 				{
-					// TODO [PS] Clarify if/how optional parameters should be generated?
-
 					var ps = method.GetParameters().Select(x => x.Name + " : " + GetTypeContractName(x.ParameterType));
 					var functionName = FirstCharLowered(method.Name);
 					var functionArgs = "(" + string.Join(", ", ps) + ")";
-					list.Add(new FunctionDetails(functionName, functionArgs, null));
+
+					string reasonDeprecated;
+					bool isDeprecated = method.IsDeprecated(out reasonDeprecated);
+
+					list.Add(new Models.MethodInfo(functionName, isDeprecated, reasonDeprecated, functionArgs));
 				}
 			}
 
@@ -222,7 +224,11 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			var dataMemberAttribute = prop.GetCustomAttribute<DataMemberAttribute>();
 			var modelName = string.IsNullOrWhiteSpace(dataMemberAttribute?.Name) ? prop.Name : dataMemberAttribute.Name;
 			var modelType = GetTypeContractInfo(propType, IsNotNullableProperty(prop));
-			return new MemberTypeInfo(modelName, modelType.Name, IsOptionalProperty(prop));
+
+			string reasonDeprecated;
+			bool isDeprecated = prop.IsDeprecated(out reasonDeprecated);
+
+			return new MemberTypeInfo(modelName, isDeprecated, reasonDeprecated, modelType.Name, IsOptionalProperty(prop));
 		}
 
 		private bool IsOptionalProperty(PropertyInfo prop)

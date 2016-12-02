@@ -1,23 +1,21 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 {
-	public class ClientInfo
+	public class ClientInfo : ContractInfo
 	{
-		public string ModuleName { get; }
-		public string InterfaceName { get; }
-		public List<FunctionDetails> FunctionDetails { get; }
+		public List<MethodInfo> Methods { get; }
 
-		public ClientInfo(string moduleName, string interfaceName, List<FunctionDetails> functionDetails)
+		public ClientInfo(string name, string moduleName, List<MethodInfo> methods)
+			: base(name, false, null, moduleName)
 		{
-			ModuleName = moduleName;
-			InterfaceName = interfaceName;
-			FunctionDetails = functionDetails;
+			Methods = methods;
 		}
 
 		public override string ToString()
 		{
-			return $"ModuleName:{ModuleName},InterfaceName:{InterfaceName}";
+			return string.Concat(base.ToString(), $"; Methods:{string.Join(", ", Methods.Select(m => m.Name))}");
 		}
 	}
 }

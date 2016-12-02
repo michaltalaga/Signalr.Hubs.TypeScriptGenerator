@@ -81,7 +81,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 			// Treat output path as directory, and generate output file name.
 
 			var assemblyFileName = Path.GetFileNameWithoutExtension(AssemblyPath);
-			return Path.Combine(Output, Path.ChangeExtension(assemblyFileName, ".d.ts"));
+			return Path.Combine(Output, assemblyFileName + ".d.ts");
 		}
 	}
 }

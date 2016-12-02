@@ -1,14 +1,13 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 {
-	public class DataContractInfo
+	public class DataContractInfo : ContractInfo
 	{
-		public string ModuleName { get; }
-
-		public string InterfaceName { get; }
-
 		public string[] BaseInterfaces { get; }
+
+		public List<MemberTypeInfo> Properties { get; }
 
 		/// <summary>
 		/// Gets "extends" specification for the contract interface, if <see cref="BaseInterfaces"/> collection is not empty;
@@ -24,19 +23,18 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 			}
 		}
 
-		public List<MemberTypeInfo> Properties { get; }
-
-		public DataContractInfo(string moduleName, string interfaceName, string[] baseInterfaces, List<MemberTypeInfo> properties)
+		public DataContractInfo(
+			string name, bool isDeprecated, string reasonDeprecated, string moduleName,
+			string[] baseInterfaces, List<MemberTypeInfo> properties)
+			: base(name, isDeprecated, reasonDeprecated, moduleName)
 		{
-			ModuleName = moduleName;
-			InterfaceName = interfaceName;
 			BaseInterfaces = baseInterfaces;
 			Properties = properties;
 		}
 
 		public override string ToString()
 		{
-			return $"ModuleName:{ModuleName},InterfaceName:{InterfaceName};Bases:{BaseInterfaces};Properties:[{string.Join(",", Properties)}]";
+			return string.Concat(base.ToString(), $"; Bases:{BaseInterfaces}; Properties:[{string.Join(",", Properties.Select(p => p.Name))}]");
 		}
 	}
 }

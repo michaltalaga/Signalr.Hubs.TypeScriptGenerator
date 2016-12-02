@@ -26,11 +26,15 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 		{
 			return hubmanager
 				.GetHubs()
-				.Select(hub => new MemberTypeInfo(
-					hub.NameSpecified ? hub.Name : typeHelper.FirstCharLowered(hub.Name), 
-					hub.HubType.FullName))
-				.ToList();
-		}
+				.Select(hub =>
+				{
+					string reasonDeprecated;
+					bool isDeprecated = hub.HubType.IsDeprecated(out reasonDeprecated);
+					return new MemberTypeInfo(
+						hub.NameSpecified ? hub.Name : typeHelper.FirstCharLowered(hub.Name),
+						isDeprecated, reasonDeprecated, hub.HubType.FullName, false);
+				}).ToList();
+	}
 
 		public List<ServiceInfo> GetServiceContracts()
 		{
@@ -38,32 +42,36 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 
 			foreach (var hub in hubmanager.GetHubs())
 			{
-				var hubMethods = hubmanager
-					.GetHubMethods(hub.Name)
-					.Select(method =>
-					{
-						var methodParametersString = string.Join(", ", method.Parameters
-							.Select(typeHelper.GetParameterInfo)
-							.Select(x => $"{x.DeclaredName} : {x.TypeScriptType}"));
-
-						return new FunctionDetails(
-							typeHelper.FirstCharLowered(method.Name),
-							$"({methodParametersString})",
-							$"JQueryPromise<{typeHelper.GetTypeContractName(method.ReturnType)}>");
-					})
-					.ToList();
+				var hubMethods = hubmanager.GetHubMethods(hub.Name).Select(GetServiceMethod).ToList();
 
 				var hubType = hub.HubType;
 				var clientType = typeHelper.ClientType(hubType);
+
+				string reasonDeprecated;
+				bool isDeprecated = hub.HubType.IsDeprecated(out reasonDeprecated);
+
 				list.Add(new ServiceInfo(
-					moduleName: hubType.Namespace,
-					interfaceName: hubType.Name,
-					clientType: clientType != null ? clientType.FullName : "any",
-					serverType: hubType.Name + "Server",
-					serverFunctions: hubMethods));
+					hubType.Name, isDeprecated, reasonDeprecated, hubType.Namespace,
+					clientType != null ? clientType.FullName : "any",
+					hubType.Name + "Server", hubMethods));
 			}
 
 			return list;
+		}
+
+		private Models.MethodInfo GetServiceMethod(MethodDescriptor method)
+		{
+			var methodParametersString = string.Join(", ", method.Parameters
+				.Select(typeHelper.GetParameterInfo)
+				.Select(x => $"{x.DeclaredName} : {x.TypeScriptType}"));
+
+			string reasonDeprecated;
+			bool isDeprecated = method.IsDeprecated(out reasonDeprecated);
+
+			return new Models.MethodInfo(
+				typeHelper.FirstCharLowered(method.Name), isDeprecated, reasonDeprecated,
+				$"({methodParametersString})",
+				$"JQueryPromise<{typeHelper.GetTypeContractName(method.ReturnType)}>");
 		}
 
 		public List<ClientInfo> GetClients()
@@ -74,10 +82,10 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			{
 				var hubType = hub.HubType;
 				var clientType = typeHelper.ClientType(hubType);
-
 				if (clientType != null)
 				{
-					list.Add(new ClientInfo(moduleName: clientType.Namespace, interfaceName: clientType.Name, functionDetails: typeHelper.GetClientFunctions(hubType)));
+					list.Add(new ClientInfo(
+						clientType.Name, clientType.Namespace, typeHelper.GetClientMethods(hubType)));
 				}
 			}
 
@@ -94,12 +102,16 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
 					.Select(prop => typeHelper.GetPropertyInfo(prop)).ToList();
 				var baseType  = type.BaseType;
-				var bases = typeHelper.IsRootBaseType(baseType) ? new string[0] : new[] { typeHelper.GenericSpecificName(baseType, true) };
+				var bases = typeHelper.IsRootBaseType(baseType) 
+					? new string[0] 
+					: new[] { typeHelper.GenericSpecificName(baseType, true) };
+
+				string reasonDeprecated;
+				bool isDeprecated = type.IsDeprecated(out reasonDeprecated);
+
 				list.Add(new DataContractInfo(
-					type.Namespace, 
-					typeHelper.GenericSpecificName(type, false),
-					bases,
-					properties));
+					typeHelper.GenericSpecificName(type, false), isDeprecated, reasonDeprecated, type.Namespace, 
+					bases, properties));
 			}
 
 			return list;
@@ -113,15 +125,30 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			{
 				var type = typeHelper.EnumTypes.Pop();
 
-				var enumProperties =
-					Enum.GetNames(type)
-						.Select(propertyName => new MemberTypeInfo(name: propertyName, typescriptType: $"{Enum.Parse(type, propertyName):D}"))
-						.ToList();
+				var enumProperties = Enum.GetNames(type).Select(memberName => GetEnumMemberInfo(type, memberName)).ToList();
 
-				list.Add(new EnumInfo(moduleName: type.Namespace, interfaceName: typeHelper.GenericSpecificName(type, false), properties: enumProperties));
+				string reasonDeprecated;
+				bool isDeprecated = type.IsDeprecated(out reasonDeprecated);
+
+				list.Add(new EnumInfo(
+					typeHelper.GenericSpecificName(type, false), isDeprecated, reasonDeprecated, type.Namespace, 
+					enumProperties));
 			}
 
 			return list;
+		}
+
+		private static EnumMemberInfo GetEnumMemberInfo(Type enumType, string memberName)
+		{
+			var enumMember = enumType.GetField(memberName);
+
+			string reasonDeprecated;
+			bool isDeprecated = enumMember.IsDeprecated(out reasonDeprecated);
+
+			return new EnumMemberInfo(
+				memberName, isDeprecated, reasonDeprecated,
+				enumMember.GetRawConstantValue());
+			// $"{Enum.Parse(type, propertyName):D}"))
 		}
 	}
 }

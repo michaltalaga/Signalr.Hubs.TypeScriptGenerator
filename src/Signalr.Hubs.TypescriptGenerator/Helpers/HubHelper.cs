@@ -102,7 +102,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
 					.Select(prop => typeHelper.GetPropertyInfo(prop)).ToList();
 				var baseType  = type.BaseType;
-				var bases = typeHelper.IsRootBaseType(baseType) 
+				var bases = baseType == null || typeHelper.IsRootBaseType(baseType) 
 					? new string[0] 
 					: new[] { typeHelper.GenericSpecificName(baseType, true) };
 

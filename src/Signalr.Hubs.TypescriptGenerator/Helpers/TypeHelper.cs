@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Hubs;
+using MemberInfo = System.Reflection.MemberInfo;
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 {
@@ -41,7 +42,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 					var functionArgs = "(" + string.Join(", ", ps) + ")";
 
 					string reasonDeprecated;
-					bool isDeprecated = method.IsDeprecated(out reasonDeprecated);
+					var isDeprecated = method.IsDeprecated(out reasonDeprecated);
 
 					list.Add(new Models.MethodInfo(functionName, isDeprecated, reasonDeprecated, functionArgs));
 				}
@@ -80,105 +81,115 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			return GetTypeContractInfo(type).Name;
 		}
 
-		/// <summary>
-		/// This method formats the TypeScript name for the specified <see cref="Type"/>.
-		/// <note type="note">Nullable type is not appended with <c>|null</c>.</note>
-		/// </summary>
-		/// <param name="type"></param>
-		/// <param name="forceNotNullable">Instructs to ignore "nullability" of the specified <paramref name="type"/>.
-		/// </param>
-		/// <returns></returns>
-		private TypeInfo GetTypeContractInfo(Type type, bool forceNotNullable = false)
-		{
-			if (type == typeof(Task))
-			{
-				return TypeInfo.Void;
-			}
+	    /// <summary>
+	    /// This method formats the TypeScript name for the specified <see cref="Type"/>.
+	    /// <note type="note">Nullable type is not appended with <c>|null</c>.</note>
+	    /// </summary>
+	    /// <param name="type"></param>
+	    /// <param name="forceNotNullable">Instructs to ignore "nullability" of the specified <paramref name="type"/>.
+	    /// </param>
+	    /// <returns></returns>
+	    private TypeInfo GetTypeContractInfo(Type type, bool forceNotNullable = false)
+	    {
+	        while (true)
+	        {
+	            if (type == typeof(Task))
+	            {
+	                return TypeInfo.Void;
+	            }
 
-			if (type.IsArray)
-			{
-				var elementType = GetTypeContractInfo(type.GetElementType());
-				var arrayType = TypeInfo.Array(elementType);
-				return Nullable(arrayType, forceNotNullable);
-			}
+	            if (type.IsArray)
+	            {
+	                var elementType = GetTypeContractInfo(type.GetElementType());
+	                var arrayType = TypeInfo.Array(elementType);
+	                return Nullable(arrayType, forceNotNullable);
+	            }
 
-			if (type.IsGenericType)
-			{
-				if (typeof(Task<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
-				{
-					return GetTypeContractInfo(type.GetGenericArguments()[0], forceNotNullable);
-				}
+	            if (type.IsGenericType)
+	            {
+	                if (typeof(Task<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+	                {
+	                    type = type.GetGenericArguments()[0];
+	                    continue;
+	                }
 
-				if (typeof(Nullable<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
-				{
-					var nestedType = GetTypeContractInfo(type.GetGenericArguments()[0]);
-					return Nullable(nestedType, forceNotNullable);
-				}
+	                if (typeof(Nullable<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+	                {
+	                    var nestedType = GetTypeContractInfo(type.GetGenericArguments()[0]);
+	                    return Nullable(nestedType, forceNotNullable);
+	                }
 
-				if (typeof(List<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
-				{
-					var elementType = GetTypeContractInfo(type.GetGenericArguments()[0]);
-					var arrayType = TypeInfo.Array(elementType);
-					return Nullable(arrayType, forceNotNullable);
-				}
-			}
+	                if (typeof(List<>).IsAssignableFrom(type.GetGenericTypeDefinition()))
+	                {
+	                    var elementType = GetTypeContractInfo(type.GetGenericArguments()[0]);
+	                    var arrayType = TypeInfo.Array(elementType);
+	                    return Nullable(arrayType, forceNotNullable);
+	                }
+	            }
 
-			if (type.Namespace == "System")
-			{
-				var typeNameLowerCase = type.Name.ToLowerInvariant();
-				switch (typeNameLowerCase)
-				{
-					case "datetime":
-						return TypeInfo.Date;
+	            if (type.Namespace == "System")
+	            {
+	                var typeNameLowerCase = type.Name.ToLowerInvariant();
+	                // ReSharper disable once SwitchStatementMissingSomeCases
+	                switch (typeNameLowerCase)
+	                {
+	                    case "datetime":
+	                        return TypeInfo.Date;
 
-					case "int16":
-					case "int32":
-					case "int64":
-					case "single":
-					case "double":
-						return TypeInfo.Number;
+	                    case "int16":
+	                    case "int32":
+	                    case "int64":
+	                    case "single":
+	                    case "double":
+	                        return TypeInfo.Number;
 
-					case "boolean":
-						return TypeInfo.Boolean;
+	                    case "boolean":
+	                        return TypeInfo.Boolean;
 
-					case "void":
-						return TypeInfo.Void;
+	                    case "void":
+	                        return TypeInfo.Void;
 
-					case "string":
-						return Nullable(TypeInfo.String, forceNotNullable);
+	                    case "string":
+	                        return Nullable(TypeInfo.String, forceNotNullable);
 
-					case "guid":
-						return TypeInfo.String;
+	                    case "guid":
+	                        return TypeInfo.String;
 
-					case "object":
-						return TypeInfo.Any;
-				}
-			}
+	                    case "object":
+	                        return TypeInfo.Any;
+	                }
+	            }
 
-			AddCustomType(type);
-			return TypeInfo.Simple(GenericSpecificName(type, true));
-		}
+	            AddCustomType(type);
+	            return TypeInfo.Simple(GenericSpecificName(type, true));
+	        }
+	    }
 
-		public void AddCustomType(Type type)
-		{
-			if (type == null || type == typeof(ValueType) || type == typeof(object))
-				return;
+	    public void AddCustomType(Type type)
+	    {
+	        while (true)
+	        {
+	            if (type == null || type == typeof(ValueType) || type == typeof(object))
+	                return;
 
-			if (!doneTypes.Add(type))
-				return; // Already handled.
+	            if (!doneTypes.Add(type))
+	                return; // Already handled.
 
-			if (type.IsEnum)
-			{
-				EnumTypes.Add(type);
-			}
-			else
-			{
-				InterfaceTypes.Enqueue(type);
-				AddCustomType(type.BaseType);
-			}
-		}
+	            if (type.IsEnum)
+	            {
+	                EnumTypes.Add(type);
+	            }
+	            else
+	            {
+	                InterfaceTypes.Enqueue(type);
+	                type = type.BaseType;
+	                continue;
+	            }
+	            break;
+	        }
+	    }
 
-		public void DiscoverAdditionalTypes(Type dataContractType)
+	    public void DiscoverAdditionalTypes(Type dataContractType)
 		{
 			switch (Options.IncludedTypesDiscovery)
 			{
@@ -197,7 +208,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			}
 		}
 
-		private IEnumerable<Type> GetKnownTypes(Type type)
+		private static IEnumerable<Type> GetKnownTypes(Type type)
 		{
 			foreach (var attribute in type.GetCustomAttributes<KnownTypeAttribute>(false))
 			{
@@ -209,23 +220,23 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 						BindingFlags.Static |
 						BindingFlags.DeclaredOnly, 
 						null, new Type[0], null);
-					if (methodInfo != null)
+					if (methodInfo == null)
+						continue;
+
+					Type[] knownTypes = null;
+					try
 					{
-						Type[] knownTypes = null;
-						try
-						{
-							knownTypes = methodInfo.Invoke(null, null) as Type[];
-						}
-						catch (Exception)
-						{
-							// Eat it.
-						}
-						if (knownTypes != null)
-						{
-							foreach (var knownType in knownTypes)
-								yield return knownType;
-						}
+						knownTypes = methodInfo.Invoke(null, null) as Type[];
 					}
+					catch (Exception)
+					{
+						// Eat it.
+					}
+					if (knownTypes == null)
+						continue;
+
+					foreach (var knownType in knownTypes)
+						yield return knownType;
 				}
 				else
 				{
@@ -264,7 +275,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 
 		public string GenericSpecificName(Type type, bool referencing)
 		{
-			string name = (referencing ? type.FullName : type.Name).Split('`').First();
+			var name = (referencing ? type.FullName : type.Name).Split('`').First();
 			if (type.IsGenericType)
 			{
 				name += "_" + string.Join("_", type.GenericTypeArguments.Select(a => GenericSpecificName(a, false))) + "_";
@@ -280,12 +291,12 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			var modelType = GetTypeContractInfo(propType, IsNotNullableProperty(prop));
 
 			string reasonDeprecated;
-			bool isDeprecated = prop.IsDeprecated(out reasonDeprecated);
+			var isDeprecated = prop.IsDeprecated(out reasonDeprecated);
 
 			return new MemberTypeInfo(modelName, isDeprecated, reasonDeprecated, modelType.Name, IsOptionalProperty(prop));
 		}
 
-		private bool IsOptionalProperty(PropertyInfo prop)
+		private bool IsOptionalProperty(MemberInfo prop)
 		{
 			switch (Options.OptionalMemberGenerationMode)
 			{

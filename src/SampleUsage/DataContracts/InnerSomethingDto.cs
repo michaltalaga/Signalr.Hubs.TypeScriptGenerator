@@ -20,7 +20,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContract
 		[DataMember(Name = "inner123")]
 		public object Inner { get; set; }
 
-		static Type[] GetKnownTypes()
+	    // ReSharper disable once UnusedMember.Local
+	    private static Type[] GetKnownTypes()
 		{
 			return new[]
 			{

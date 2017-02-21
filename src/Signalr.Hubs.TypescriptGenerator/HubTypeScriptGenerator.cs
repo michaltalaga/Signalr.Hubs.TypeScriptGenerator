@@ -14,8 +14,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator
 		/// Generates typescript declarations and exports code.
 		/// </summary>
 		/// <param name="options">The parsed command line options.</param>
-		/// <returns>The <see cref="Tuple{string, string}"/> with <see cref="Tuple{string, string}.Item1"/> set to 
-		/// generated declarations, and the <see cref="Tuple{string, string}.Item2"/> set to generated exports.
+		/// <returns>The <see cref="Tuple"/> with <c>Item1</c> set to generated declarations, and the<c>Item2</c> 
+		/// set to generated exports.
 		/// </returns>
 		public Tuple<string, string> Generate(TypeScriptGeneratorOptions options)
 		{

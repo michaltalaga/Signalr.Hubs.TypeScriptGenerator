@@ -17,5 +17,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContract
 		[DataMember(IsRequired = false)]
 		public int? OptionalNullableInteger { get; set; }
 
+		public override Guid? NullableRequiredGuid { get; set; }
+
 	}
 }

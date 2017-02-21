@@ -93,7 +93,7 @@ declare module @grouping.Key {
 @foreach (var grouping in Model.DataContracts.GroupBy(x => x.ModuleName)) {
 <text>declare module @grouping.Key {
 @foreach (var dataContractInfo in grouping) {
-	string openBrace = string.IsNullOrEmpty(dataContractInfo.ExtendsDeclaration) ? "{" : " {";
+	var openBrace = string.IsNullOrEmpty(dataContractInfo.ExtendsDeclaration) ? "{" : " {";
 	@WriteDeprecatedComment(dataContractInfo, 1)
 	<text>interface @dataContractInfo.Name @dataContractInfo.ExtendsDeclaration@(openBrace)
 	@foreach (MemberTypeInfo property in dataContractInfo.Properties)
@@ -115,7 +115,7 @@ declare module @grouping.Key {
 @foreach (EnumInfo enumInfo in grouping) {
 	@WriteDeprecatedComment(enumInfo, 1)
 	<text>enum @enumInfo.Name {
-	@foreach (EnumMemberInfo enumMember in enumInfo.Members) {
+	@foreach (var enumMember in enumInfo.Members) {
 		@WriteDeprecatedComment(enumMember, 2)
 		<text>@Raw(enumMember.Name) = @Raw(enumMember.Value.ToString()),</text>
 	}

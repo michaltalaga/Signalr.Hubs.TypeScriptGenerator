@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
+﻿namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Models
 {
 	public class EnumMemberInfo : MemberInfo
 	{

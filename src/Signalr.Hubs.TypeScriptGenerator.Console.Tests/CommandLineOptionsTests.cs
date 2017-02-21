@@ -8,9 +8,9 @@ namespace Signalr.Hubs.TypeScriptGenerator.Console.Tests
     {
         private const string TestAssemblyPath = @"c:\signalr\hubs\test\assembly.dll";
 
-        private CommandLineOptions GetSUT(string assemblyPath = TestAssemblyPath)
+        private static CommandLineOptions GetSut(string assemblyPath = TestAssemblyPath)
         {
-            return new CommandLineOptions()
+            return new CommandLineOptions
             {
                 AssemblyPath = assemblyPath
             };
@@ -22,7 +22,7 @@ namespace Signalr.Hubs.TypeScriptGenerator.Console.Tests
         public void GetOutputPath_WhenOutputIsNullOrEmpty_ThenReturnsNullOrEmpty(string output)
         {
             // Arrange
-            var sut = GetSUT();
+            var sut = GetSut();
             sut.Output = output;
 
             // Act
@@ -36,8 +36,8 @@ namespace Signalr.Hubs.TypeScriptGenerator.Console.Tests
         public void GetOutputPath_WhenOutputIsNotDirectory_ReturnsTheSuppliedValue()
         {
             // Arrange
-            var sut = GetSUT();
-            var suppliedOutput = "supplied output";
+            var sut = GetSut();
+            const string suppliedOutput = "supplied output";
             sut.Output = suppliedOutput;
 
             // Act
@@ -55,7 +55,7 @@ namespace Signalr.Hubs.TypeScriptGenerator.Console.Tests
             string suppliedOutput, string expectedOutput)
         {
             // Arrange
-            var sut = GetSUT();
+            var sut = GetSut();
             sut.Output = suppliedOutput;
 
             // Act

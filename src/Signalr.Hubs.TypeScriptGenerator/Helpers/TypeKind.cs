@@ -5,6 +5,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 		None,
 		Null,
 		Array,
-		Custom,
+		Custom
 	}
 }

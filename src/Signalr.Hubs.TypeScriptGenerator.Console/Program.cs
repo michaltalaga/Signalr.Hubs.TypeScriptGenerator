@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using CommandLine;
@@ -40,7 +39,10 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 		private static int RunInNewAppDomainToAllowRazorEngineToCleanup(string[] args)
 		{
 			var appDomain = AppDomain.CreateDomain("RazorEngine", null, AppDomain.CurrentDomain.SetupInformation);
-			var exitCode = appDomain.ExecuteAssembly(Assembly.GetExecutingAssembly().Location, args);
+			var assemblyLocation = Assembly.GetExecutingAssembly().Location;
+			if (string.IsNullOrEmpty(assemblyLocation))
+				throw new InvalidOperationException("Couldn't retrieve assembly location.");
+			var exitCode = appDomain.ExecuteAssembly(assemblyLocation, args);
 			AppDomain.Unload(appDomain);
 			return exitCode;
 		}
@@ -49,7 +51,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 		{
 			LoadAssemblies(commandLineOptions.AssemblyPath);
 
-			string outputPath = commandLineOptions.GetOutputPath();
+			var outputPath = commandLineOptions.GetOutputPath();
 			var exportsFilePath = GetExportsFilePath(outputPath);
 
 			var generatorOptions = GetTypeScriptGeneratorOptions(commandLineOptions);
@@ -101,15 +103,8 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Console
 			}
 
 			var extension = Path.GetExtension(outputPath);
-
-			if (!string.IsNullOrEmpty(extension))
-			{
-				return Path.ChangeExtension(outputPath, exportsSuffix + extension);
-			}
-			else
-			{
-				return outputPath + exportsSuffix;
-			}
+			return !string.IsNullOrEmpty(extension) ? 
+				Path.ChangeExtension(outputPath, exportsSuffix + extension) : outputPath + exportsSuffix;
 		}
 
 		private static void LoadAssemblies(string assemblyPath)

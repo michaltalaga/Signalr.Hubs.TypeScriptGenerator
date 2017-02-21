@@ -29,7 +29,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				.Select(hub =>
 				{
 					string reasonDeprecated;
-					bool isDeprecated = hub.HubType.IsDeprecated(out reasonDeprecated);
+					var isDeprecated = hub.HubType.IsDeprecated(out reasonDeprecated);
 					return new MemberTypeInfo(
 						hub.NameSpecified ? hub.Name : typeHelper.FirstCharLowered(hub.Name),
 						isDeprecated, reasonDeprecated, hub.HubType.FullName, false);
@@ -48,7 +48,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				var clientType = typeHelper.ClientType(hubType);
 
 				string reasonDeprecated;
-				bool isDeprecated = hub.HubType.IsDeprecated(out reasonDeprecated);
+				var isDeprecated = hub.HubType.IsDeprecated(out reasonDeprecated);
 
 				list.Add(new ServiceInfo(
 					hubType.Name, isDeprecated, reasonDeprecated, hubType.Namespace,
@@ -66,7 +66,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				.Select(x => $"{x.DeclaredName} : {x.TypeScriptType}"));
 
 			string reasonDeprecated;
-			bool isDeprecated = method.IsDeprecated(out reasonDeprecated);
+			var isDeprecated = method.IsDeprecated(out reasonDeprecated);
 
 			return new Models.MethodInfo(
 				typeHelper.FirstCharLowered(method.Name), isDeprecated, reasonDeprecated,
@@ -76,20 +76,11 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 
 		public List<ClientInfo> GetClients()
 		{
-			var list = new List<ClientInfo>();
-
-			foreach (var hub in hubmanager.GetHubs())
-			{
-				var hubType = hub.HubType;
-				var clientType = typeHelper.ClientType(hubType);
-				if (clientType != null)
-				{
-					list.Add(new ClientInfo(
-						clientType.Name, clientType.Namespace, typeHelper.GetClientMethods(hubType)));
-				}
-			}
-
-			return list;
+		    return (from hub in hubmanager.GetHubs()
+                    select hub.HubType into hubType
+                    let clientType = typeHelper.ClientType(hubType)
+                    where clientType != null
+                    select new ClientInfo(clientType.Name, clientType.Namespace, typeHelper.GetClientMethods(hubType))).ToList();
 		}
 
 		public List<DataContractInfo> GetDataContracts()
@@ -99,20 +90,23 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			while (typeHelper.InterfaceTypes.Count != 0)
 			{
 				var type = typeHelper.InterfaceTypes.Dequeue();
-				var properties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
-					.Select(prop => typeHelper.GetPropertyInfo(prop)).ToList();
-				var baseType  = type.BaseType;
-				var bases = baseType == null || typeHelper.IsRootBaseType(baseType) 
-					? new string[0] 
-					: new[] { typeHelper.GenericSpecificName(baseType, true) };
+				var baseType = type.BaseType;
+				var isBaseTypeDefined = baseType != null && !typeHelper.IsRootBaseType(baseType);
+
+				var declaredProperties = type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
+				if (isBaseTypeDefined)
+				{
+					var derivedProperties = baseType.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+					var derivedPropertyNames = derivedProperties.Select(p => p.Name).ToList();
+					declaredProperties = declaredProperties.Where(p => !derivedPropertyNames.Contains(p.Name)).ToArray();
+				}
+
+				var properties = declaredProperties.Select(prop => typeHelper.GetPropertyInfo(prop)).ToList();
+				var bases = isBaseTypeDefined ? new[] { typeHelper.GenericSpecificName(baseType, true) } : new string[0];
 
 				string reasonDeprecated;
-				bool isDeprecated = type.IsDeprecated(out reasonDeprecated);
-
-				list.Add(new DataContractInfo(
-					typeHelper.GenericSpecificName(type, false), isDeprecated, reasonDeprecated, type.Namespace, 
-					bases, properties));
-
+				var isDeprecated = type.IsDeprecated(out reasonDeprecated);
+				list.Add(new DataContractInfo(typeHelper.GenericSpecificName(type, false), isDeprecated, reasonDeprecated, type.Namespace, bases, properties));
 				typeHelper.DiscoverAdditionalTypes(type);
 			}
 
@@ -128,7 +122,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 				var enumProperties = Enum.GetNames(type).Select(memberName => GetEnumMemberInfo(type, memberName)).ToList();
 
 				string reasonDeprecated;
-				bool isDeprecated = type.IsDeprecated(out reasonDeprecated);
+				var isDeprecated = type.IsDeprecated(out reasonDeprecated);
 
 				list.Add(new EnumInfo(
 					typeHelper.GenericSpecificName(type, false), isDeprecated, reasonDeprecated, type.Namespace, 
@@ -143,7 +137,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			var enumMember = enumType.GetField(memberName);
 
 			string reasonDeprecated;
-			bool isDeprecated = enumMember.IsDeprecated(out reasonDeprecated);
+			var isDeprecated = enumMember.IsDeprecated(out reasonDeprecated);
 
 			return new EnumMemberInfo(
 				memberName, isDeprecated, reasonDeprecated,

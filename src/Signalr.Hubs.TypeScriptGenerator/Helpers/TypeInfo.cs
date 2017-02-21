@@ -16,10 +16,6 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 			return IsUnion ? $"({Name})" : Name;
 		}
 
-		protected TypeInfo()
-		{
-		}
-
 		private sealed class TypeInfoPredefined : TypeInfo
 		{
 			public override TypeKind Kind => TypeKind.Null;
@@ -89,11 +85,9 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.Helpers
 
 			public override bool IsUnion => false;
 
-			public override string Name
-			{
-				get { return elementType.FormatNestedName() + "[]"; }
-			}
-			public TypeInfoArray(TypeInfo elementType)
+			public override string Name => elementType.FormatNestedName() + "[]";
+
+		    public TypeInfoArray(TypeInfo elementType)
 			{
 				this.elementType = elementType;
 			}

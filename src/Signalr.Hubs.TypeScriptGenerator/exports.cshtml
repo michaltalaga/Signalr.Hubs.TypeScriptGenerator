@@ -39,7 +39,7 @@ export module @grouping.Key {
 @foreach (EnumInfo enumInfo in grouping) {
 	@WriteDeprecatedComment(enumInfo, 1)
 	<text>export enum @enumInfo.Name {
-	@foreach (EnumMemberInfo enumMember in enumInfo.Members) {
+	@foreach (var enumMember in enumInfo.Members) {
 		@WriteDeprecatedComment(enumMember, 2)
 		<text>@Raw(enumMember.Name) = @Raw(enumMember.Value.ToString()),</text>
 	}

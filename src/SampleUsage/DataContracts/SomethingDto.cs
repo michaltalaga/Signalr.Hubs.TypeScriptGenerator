@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 using System.ComponentModel.DataAnnotations;
+#pragma warning disable 618
 
 namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContracts
 {
@@ -22,7 +23,7 @@ namespace GeniusSports.Signalr.Hubs.TypeScriptGenerator.SampleUsage.DataContract
 
 		[DataMember(IsRequired = true)]
 		[Required]
-		public Guid? NullableRequiredGuid { get; set; }
+		public virtual Guid? NullableRequiredGuid { get; set; }
 
 		[DataMember]
 		[Required]
